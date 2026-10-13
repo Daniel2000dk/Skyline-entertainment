@@ -55,6 +55,13 @@ select is(
   'invitation matching ignores email case'
 );
 
+-- Reference counts as the database owner, so the assertions below hold no
+-- matter what other data (e.g. from e2e runs) exists in the local database.
+create temp table expected on commit drop as
+select (select count(*)::int from public.staff_profiles) as profiles,
+       (select count(*)::int from public.staff_invitations) as invitations;
+grant select on expected to authenticated;
+
 -- Anonymous visitors --------------------------------------------------------
 
 select tests.authenticate_as_anon();
@@ -76,7 +83,7 @@ reset role;
 -- Regular staff (Medewerker) -------------------------------------------------
 
 select tests.authenticate_as('medewerker@skyline.test');
-select is((select count(*)::int from public.staff_profiles), 6, 'active staff can see all staff profiles');
+select is((select count(*)::int from public.staff_profiles), (select profiles from expected), 'active staff can see all staff profiles');
 select is((select count(*)::int from public.staff_invitations), 0, 'non-admins cannot see invitations (or emails)');
 
 update public.staff_profiles set display_name = 'Nieuwe naam'
@@ -129,7 +136,7 @@ select is(
 -- Administrator -----------------------------------------------------------------
 
 select tests.authenticate_as('admin@skyline.test');
-select is((select count(*)::int from public.staff_invitations), 8, 'admins can see all invitations');
+select is((select count(*)::int from public.staff_invitations), (select invitations from expected), 'admins can see all invitations');
 
 select lives_ok(
   $$update public.staff_profiles set role = 'organizer' where id = tests.user_id('collega@skyline.test')$$,

@@ -43,10 +43,14 @@ select lives_ok(
 );
 reset role;
 
+create temp table expected on commit drop as
+select (select count(*)::int from public.projects) as projects;
+grant select on expected to authenticated;
+
 -- Visibility -------------------------------------------------------------------
 
 select tests.authenticate_as('medewerker@skyline.test');
-select is((select count(*)::int from public.projects), 2, 'all active staff can view all projects');
+select is((select count(*)::int from public.projects), (select projects from expected), 'all active staff can view all projects');
 reset role;
 
 select tests.authenticate_as('buitenstaander@skyline.test');
