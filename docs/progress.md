@@ -24,6 +24,7 @@ _Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
 - CI (GitHub Actions): formattering, lint, types, unit-tests, build, pgTAP- en e2e-tests tegen een
   tijdelijke Supabase in de runner.
 - `vercel.json`: geen automatische productie-deploys vanaf `main`.
+- Branch protection op `main`: alleen via pull request met groene CI; geen force-push of verwijderen.
 - Script voor de eerste Administrator (`scripts/create-admin.mjs`).
 - MFA (TOTP via authenticator-app): instellen en uitzetten via **Account**, code-stap bij het
   inloggen, afgedwongen in de database (`aal2`), admin-reset bij verloren telefoon, audit-log.
@@ -35,7 +36,6 @@ _Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
 ## Openstaande punten
 
 - **Vercel en Supabase koppelen** (alleen jij kunt dit): zie "Acties voor jou".
-- **Branch protection op `main`** activeren zodra CI één keer groen is op GitHub.
 - **E-mail voor zelfbediening "wachtwoord vergeten"**: werkt online pas met een eigen SMTP-dienst.
   Tot die tijd maakt een Administrator een inloglink via Team.
 - **GTA-kaartmateriaal (fase C)**: licentie-onderzoek nodig voordat er tiles worden gebruikt.
