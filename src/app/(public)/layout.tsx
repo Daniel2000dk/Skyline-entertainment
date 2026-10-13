@@ -12,7 +12,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <footer className="border-t border-border">
-        <div className="mx-auto w-full max-w-5xl px-4 py-6 text-sm text-muted">
+        <div className="mx-auto w-full max-w-5xl px-4 py-6 text-sm text-muted-foreground">
           Skyline Entertainment organiseert evenementen binnen GTA roleplay. Alle bedragen zijn
           in-game GTA-dollars.
         </div>

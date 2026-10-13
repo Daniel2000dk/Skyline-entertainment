@@ -1,14 +1,16 @@
-import { cn } from "@/lib/cn";
+import { cn } from "cn";
+import { Loader2Icon } from "lucide-react";
 
-/** Decorative spinner; pair it with visible text or aria-busy on the owning element. */
-export function Spinner({ className }: { className?: string }) {
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
   return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent",
-        className,
-      )}
+    <Loader2Icon
+      data-slot="spinner"
+      role="status"
+      aria-label="Laden"
+      className={cn("size-4 animate-spin", className)}
+      {...props}
     />
   );
 }
+
+export { Spinner };

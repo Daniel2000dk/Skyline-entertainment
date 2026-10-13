@@ -1,47 +1,121 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 /*
- * Skyline design tokens — dark entertainment brand.
- * Contrast (WCAG 2.2) on --color-background: foreground 18:1, muted 7.5:1, gold 8.4:1.
+ * Skyline brand theme (dark only; <html class="dark">).
+ * shadcn/ui variable names, Skyline values. WCAG contrast on --background:
+ * foreground 18:1, muted-foreground 7.5:1, primary (gold) 8.4:1;
+ * primary-foreground on primary 8.4:1.
  * Gold is an accent: primary actions, focus rings and small highlights only.
  */
-@theme {
-  --color-background: #0b0b0d;
-  --color-surface: #141417;
-  --color-surface-raised: #1c1c21;
-  --color-border: #2a2a31;
-  --color-border-strong: #3a3a43;
-  --color-foreground: #f5f5f4;
-  --color-muted: #a1a1aa;
-  --color-gold: #c9a54b;
-  --color-gold-strong: #ddbb62;
-  --color-gold-ink: #0b0b0d;
-  --color-danger: #f87171;
-  --color-danger-surface: #2a1414;
-  --color-success: #4ade80;
-  --color-success-surface: #12261a;
-  --color-warning: #fbbf24;
-  --color-warning-surface: #2a2110;
-  --color-info: #93c5fd;
-  --color-info-surface: #121c2a;
-
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-}
-
 :root {
   color-scheme: dark;
+  --radius: 0.5rem;
+
+  --background: #0b0b0d;
+  --foreground: #f5f5f4;
+  --card: #141417;
+  --card-foreground: #f5f5f4;
+  --popover: #1c1c21;
+  --popover-foreground: #f5f5f4;
+  --primary: #c9a54b;
+  --primary-foreground: #0b0b0d;
+  --secondary: #1c1c21;
+  --secondary-foreground: #f5f5f4;
+  --muted: #1c1c21;
+  --muted-foreground: #a1a1aa;
+  --accent: #24242a;
+  --accent-foreground: #f5f5f4;
+  --destructive: #f87171;
+  --border: #2a2a31;
+  --input: #3a3a43;
+  --ring: #c9a54b;
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --info: #93c5fd;
+
+  --chart-1: #c9a54b;
+  --chart-2: #f5f5f4;
+  --chart-3: #93c5fd;
+  --chart-4: #4ade80;
+  --chart-5: #a1a1aa;
+
+  --sidebar: #111114;
+  --sidebar-foreground: #f5f5f4;
+  --sidebar-primary: #c9a54b;
+  --sidebar-primary-foreground: #0b0b0d;
+  --sidebar-accent: #1c1c21;
+  --sidebar-accent-foreground: #f5f5f4;
+  --sidebar-border: #2a2a31;
+  --sidebar-ring: #c9a54b;
 }
 
-body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
-/* One consistent, clearly visible focus style for keyboard users. */
-:focus-visible {
-  outline: 2px solid var(--color-gold);
-  outline-offset: 2px;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  /* One consistent, clearly visible focus style for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
