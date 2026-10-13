@@ -23,7 +23,7 @@ export async function setPassword(_prev: FormState, formData: FormData): Promise
     return {
       status: "error",
       message:
-        "Je sessie is te oud om je wachtwoord te wijzigen. Vraag een nieuwe herstellink aan.",
+        "Je sessie is te oud om je wachtwoord te wijzigen. Log opnieuw in en probeer het binnen 15 minuten, of vraag een herstellink aan.",
     };
   }
 

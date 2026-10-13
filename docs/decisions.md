@@ -58,5 +58,15 @@ na de sessiecontrole. Sessie-afhankelijke code staat achter `<Suspense>`.
 **D13. Geen automatische productie-deploys.** `vercel.json` schakelt deploys vanaf `main` uit.
 Pull requests krijgen Vercel-previews; productie gaat alleen live na expliciete toestemming.
 
-**D14. MFA.** Basis-MFA (TOTP via authenticator-app) zit in Supabase Free. Implementatie volgt als
-aparte stap (zie progress.md); telefoon-MFA is betaald en wordt niet gebruikt.
+**D14. MFA (TOTP) wordt ook in de database afgedwongen.** Basis-MFA (authenticator-app) zit in
+Supabase Free; telefoon-MFA is betaald en wordt niet gebruikt. Voor wie MFA aanzet, geeft
+`private.current_staff_role()` pas rechten bij een sessie met `aal2` (wachtwoord + code). Een
+gestolen wachtwoord alleen levert dus ook via de API niets op. MFA blijft vrijwillig maar wordt sterk
+aanbevolen; admins kunnen MFA van een ander resetten bij een verloren telefoon. Uitzetten vereist
+een code-login van maximaal 15 minuten geleden. Wijzigingen komen in de activiteitenlog via
+`log_mfa_event` (die zelf controleert wie wat mag vastleggen). We schrijven niet rechtstreeks in
+Supabase's `auth`-schema; het gehoste platform kan dat beperken.
+
+**D15. Lokale testlimieten.** In `supabase/config.toml` staan de Auth-limieten voor inloggen en
+verificaties hoog, omdat alle e2e-logins via één IP (de app-server) lopen. Dit geldt alleen lokaal
+en in CI; gehoste projecten houden de Supabase-standaard, met de eigen limieten van de app erbovenop.

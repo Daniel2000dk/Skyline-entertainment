@@ -49,7 +49,9 @@ as $$
 $$;
 
 -- Switches the current transaction to an authenticated user's identity.
-create or replace function tests.authenticate_as(user_email text)
+-- session_aal: 'aal1' = password only, 'aal2' = password + MFA code.
+drop function if exists tests.authenticate_as(text);
+create or replace function tests.authenticate_as(user_email text, session_aal text default 'aal1')
 returns void
 language plpgsql
 set search_path = ''
@@ -61,8 +63,22 @@ begin
     raise exception 'Unknown test user %', user_email;
   end if;
   perform set_config('request.jwt.claims',
-    json_build_object('sub', target, 'role', 'authenticated')::text, true);
+    json_build_object('sub', target, 'role', 'authenticated', 'aal', session_aal)::text, true);
   perform set_config('role', 'authenticated', true);
+end;
+$$;
+
+-- Gives a user an MFA factor (verified = enabled, otherwise abandoned setup).
+create or replace function tests.add_totp_factor(user_email text, factor_status text default 'verified')
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+  values (gen_random_uuid(), tests.user_id(user_email), 'test', 'totp',
+          factor_status::auth.factor_status, now(), now());
 end;
 $$;
 

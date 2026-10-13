@@ -7,7 +7,13 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { SubmitButton } from "@/components/ui/submit-button";
 import { ROLE_LABELS, STAFF_ROLES, type StaffRole } from "@/lib/auth/roles";
 import { idleFormState, type FormState } from "@/lib/forms";
-import { createLoginLink, setStaffActive, updateStaffRole, type LinkFormState } from "./actions";
+import {
+  createLoginLink,
+  resetStaffMfa,
+  setStaffActive,
+  updateStaffRole,
+  type LinkFormState,
+} from "./actions";
 import { LinkResult } from "./link-result";
 
 function Feedback({ state }: { state: FormState }) {
@@ -100,6 +106,39 @@ export function ActiveToggle({
             Annuleren
           </Button>
         )}
+      </div>
+      <Feedback state={state} />
+    </form>
+  );
+}
+
+export function MfaResetForm({ staffId, name }: { staffId: string; name: string }) {
+  const [state, action] = useActionState(resetStaffMfa, idleFormState);
+  const [confirming, setConfirming] = useState(false);
+
+  if (!confirming) {
+    return (
+      <div className="flex flex-col gap-2">
+        <Button variant="outline" onClick={() => setConfirming(true)}>
+          2FA resetten
+        </Button>
+        <Feedback state={state} />
+      </div>
+    );
+  }
+
+  return (
+    <form action={action} className="flex flex-col gap-2">
+      <input type="hidden" name="staffId" value={staffId} />
+      <p className="text-sm">
+        Alleen doen als {name} geen toegang meer heeft tot de authenticator-app. Daarna kan {name}{" "}
+        inloggen met alleen het wachtwoord.
+      </p>
+      <div className="flex gap-2">
+        <SubmitButton variant="destructive">Ja, resetten</SubmitButton>
+        <Button variant="ghost" onClick={() => setConfirming(false)}>
+          Annuleren
+        </Button>
       </div>
       <Feedback state={state} />
     </form>

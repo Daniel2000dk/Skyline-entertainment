@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { idleFormState } from "@/lib/forms";
 import { login } from "./actions";
-import { NextPathInput } from "./next-path-input";
+import { NextPathInput } from "@/components/auth/next-path-input";
 
 export function LoginForm() {
   const [state, action] = useActionState(login, idleFormState);

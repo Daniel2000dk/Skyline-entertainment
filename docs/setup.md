@@ -43,7 +43,9 @@ een bestand dat git negeert.
    - _Redirect URLs_: `https://*-daniel2000dk.vercel.app/**` (pas de teamnaam aan aan je Vercel-URL's).
 5. **Authentication → Emails → Templates → Reset password**: onderwerp en inhoud uit
    [`supabase/templates/recovery.html`](../supabase/templates/recovery.html) plakken.
-6. Database-migraties toepassen (vanuit deze map, in een terminal):
+6. **Authentication → Multi-Factor**: _TOTP (App Authenticator)_ **aan** (gratis). Laat telefoon-MFA
+   uit (betaald).
+7. Database-migraties toepassen (vanuit deze map, in een terminal):
    ```bash
    npx supabase login                         # opent je browser
    npx supabase link --project-ref <ref>      # <ref> staat in de project-URL; vraagt het DB-wachtwoord

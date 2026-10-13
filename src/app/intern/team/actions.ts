@@ -170,3 +170,30 @@ export async function setStaffActive(_prev: FormState, formData: FormData): Prom
     message: isActive ? "Medewerker is weer actief." : "Medewerker is gedeactiveerd.",
   };
 }
+
+/** For a lost phone: removes the member's authenticator so they can log in with password only. */
+export async function resetStaffMfa(_prev: FormState, formData: FormData): Promise<FormState> {
+  const currentAdmin = await requireRole(["admin"]);
+  const staffId = staffIdSchema.safeParse(formValue(formData, "staffId"));
+  if (!staffId.success) return { status: "error", message: "Onbekende medewerker." };
+  if (staffId.data === currentAdmin.id) {
+    return { status: "error", message: "Je eigen tweestapsverificatie beheer je via Account." };
+  }
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.mfa.listFactors({ userId: staffId.data });
+  if (error) return { status: "error", message: "Resetten is mislukt. Probeer het opnieuw." };
+  for (const factor of data.factors) {
+    const { error: deleteError } = await admin.auth.admin.mfa.deleteFactor({
+      id: factor.id,
+      userId: staffId.data,
+    });
+    if (deleteError)
+      return { status: "error", message: "Resetten is mislukt. Probeer het opnieuw." };
+  }
+
+  const supabase = await createClient();
+  await supabase.rpc("log_mfa_event", { target_staff_id: staffId.data, mfa_event: "reset" });
+  refresh();
+  return { status: "success", message: "Tweestapsverificatie is gereset." };
+}

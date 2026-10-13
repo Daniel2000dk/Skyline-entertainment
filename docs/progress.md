@@ -25,10 +25,12 @@ _Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
   tijdelijke Supabase in de runner.
 - `vercel.json`: geen automatische productie-deploys vanaf `main`.
 - Script voor de eerste Administrator (`scripts/create-admin.mjs`).
+- MFA (TOTP via authenticator-app): instellen en uitzetten via **Account**, code-stap bij het
+  inloggen, afgedwongen in de database (`aal2`), admin-reset bij verloren telefoon, audit-log.
 
 ## In uitvoering
 
-- MFA (TOTP via authenticator-app) voor medewerkers; gratis in Supabase Free.
+- Niets; fase A is klaar voor review zodra de online preview is gekoppeld.
 
 ## Openstaande punten
 
@@ -40,13 +42,13 @@ _Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
 
 ## Testresultaten (lokaal, 2026-10-13)
 
-| Suite                        | Resultaat      | Dekt onder meer                                                                                        |
-| ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------ |
-| Vitest (unit)                | 43/43 geslaagd | Open-redirect-bescherming, validatie, wachtwoordregels, digest, sessieversheid                         |
-| pgTAP (database)             | 83/83 geslaagd | anon, buitenstaander, gedeactiveerd, elke rol, rol-escalatie, cross-project, audit, schema-invarianten |
-| Playwright (e2e)             | 35/35 geslaagd | Directe API-aanroepen geweigerd, login, rollen, uitnodigen, herstel, throttling, mobiel                |
-| Lint, types, Prettier, build | geslaagd       |                                                                                                        |
-| Supabase advisors            | geen meldingen | Beveiliging en performance van het schema                                                              |
+| Suite                        | Resultaat      | Dekt onder meer                                                                                                    |
+| ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Vitest (unit)                | 43/43 geslaagd | Open-redirect-bescherming, validatie, wachtwoordregels, digest, sessieversheid                                     |
+| pgTAP (database)             | 99/99 geslaagd | anon, buitenstaander, gedeactiveerd, elke rol, rol-escalatie, cross-project, audit, MFA (aal2), schema-invarianten |
+| Playwright (e2e)             | 39/39 geslaagd | Directe API-aanroepen geweigerd, login, rollen, uitnodigen, herstel, throttling, MFA, mobiel                       |
+| Lint, types, Prettier, build | geslaagd       | Ook op GitHub Actions (CI groen op PR #1)                                                                          |
+| Supabase advisors            | geen meldingen | Beveiliging en performance van het schema                                                                          |
 
 ## Acties voor jou
 
@@ -57,5 +59,5 @@ _Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
 
 ## Volgende stap
 
-Fase A afronden met MFA en de online preview controleren; daarna fase B (dashboard, agenda,
-projecten, taken, discussies, suggesties, ideeënbord).
+Na jouw koppeling van Supabase en Vercel: de online preview controleren en PR #1 mergen. Daarna
+fase B (dashboard, agenda, projecten, taken, discussies, suggesties, ideeënbord).

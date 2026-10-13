@@ -1,4 +1,4 @@
-import { randomInt, randomUUID } from "node:crypto";
+import { createHmac, randomInt, randomUUID } from "node:crypto";
 import { expect, type BrowserContext, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 
@@ -103,4 +103,61 @@ export async function latestResetLink(email: string): Promise<string> {
     )
     .toBeTruthy();
   return link!.replaceAll("&amp;", "&");
+}
+
+// --- MFA (TOTP, RFC 6238: SHA-1, 30 s, 6 digits) — what an authenticator app computes.
+
+function base32Decode(input: string): Buffer {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let value = 0;
+  const bytes: number[] = [];
+  for (const char of input.toUpperCase().replace(/[s=]/g, "")) {
+    value = (value << 5) | alphabet.indexOf(char);
+    bits += 5;
+    if (bits >= 8) {
+      bytes.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(bytes);
+}
+
+export function totp(secret: string, timeMs = Date.now()): string {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(timeMs / 30_000)));
+  const hmac = createHmac("sha1", base32Decode(secret)).update(counter).digest();
+  const offset = hmac[hmac.length - 1]! & 0xf;
+  return ((hmac.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).toString().padStart(6, "0");
+}
+
+/** A code from a later 30-second window than `previous` (codes are not reusable). */
+export async function nextTotp(secret: string, previous: string): Promise<string> {
+  let code = totp(secret);
+  while (code === previous) {
+    await new Promise((resolve) => setTimeout(resolve, 1_000));
+    code = totp(secret);
+  }
+  return code;
+}
+
+/** Enables MFA for a user through the public Auth API, as the user would. Returns code + secret. */
+export async function enableMfaFor(user: TestUser): Promise<{ secret: string; lastCode: string }> {
+  const client = createClient(required("SUPABASE_URL"), required("SUPABASE_PUBLISHABLE_KEY"), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error: loginError } = await client.auth.signInWithPassword({
+    email: user.email,
+    password: user.password,
+  });
+  if (loginError) throw loginError;
+  const { data, error } = await client.auth.mfa.enroll({ factorType: "totp", friendlyName: "e2e" });
+  if (error) throw error;
+  const lastCode = totp(data.totp.secret);
+  const { error: verifyError } = await client.auth.mfa.challengeAndVerify({
+    factorId: data.id,
+    code: lastCode,
+  });
+  if (verifyError) throw verifyError;
+  return { secret: data.totp.secret, lastCode };
 }

@@ -66,3 +66,8 @@ export function fieldErrors(error: z.ZodError): Record<string, string> {
   }
   return result;
 }
+
+export const mfaCodeSchema = z
+  .string({ error: "Vul de code in." })
+  .trim()
+  .regex(/^\d{6}$/, "Vul de 6 cijfers uit je authenticator-app in.");

@@ -11,6 +11,7 @@ export type TeamMember = {
   isActive: boolean;
   email: string | null;
   hasSignedIn: boolean;
+  hasMfa: boolean;
   createdAt: string;
 };
 
@@ -30,6 +31,8 @@ export async function listTeam(): Promise<TeamMember[]> {
   const admin = createAdminClient();
   const { data: users } = await admin.auth.admin.listUsers({ perPage: 1000 });
   const authById = new Map((users?.users ?? []).map((user) => [user.id, user]));
+  const { data: mfaIds } = await supabase.rpc("staff_with_mfa");
+  const withMfa = new Set(mfaIds ?? []);
 
   return profiles.map((profile) => {
     const user = authById.get(profile.id);
@@ -40,6 +43,7 @@ export async function listTeam(): Promise<TeamMember[]> {
       isActive: profile.is_active,
       email: user?.email ?? null,
       hasSignedIn: Boolean(user?.last_sign_in_at),
+      hasMfa: withMfa.has(profile.id),
       createdAt: profile.created_at,
     };
   });

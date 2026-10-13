@@ -43,6 +43,15 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
     };
   }
 
+  const next = safeNextPath(formValue(formData, "next"));
+
+  // With MFA enabled the database grants nothing until the code is entered,
+  // so the staff check happens after /mfa (via the DAL).
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+    redirect(`/mfa?next=${encodeURIComponent(next)}`);
+  }
+
   const { data: profile } = await supabase
     .from("staff_profiles")
     .select("id")
@@ -59,5 +68,5 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
     };
   }
 
-  redirect(safeNextPath(formValue(formData, "next")));
+  redirect(next);
 }

@@ -6,7 +6,7 @@ import { ROLE_LABELS } from "@/lib/auth/roles";
 import { requireRole } from "@/lib/auth/staff";
 import { listTeam, type TeamMember } from "@/lib/team/queries";
 import { InviteForm } from "./invite-form";
-import { ActiveToggle, LoginLinkForm, RoleForm } from "./member-actions";
+import { ActiveToggle, LoginLinkForm, MfaResetForm, RoleForm } from "./member-actions";
 
 export const metadata: Metadata = { title: "Team" };
 
@@ -60,6 +60,7 @@ function MemberCard({ member, isSelf }: { member: TeamMember; isSelf: boolean })
           <h3>{member.displayName}</h3>
           {isSelf && <Badge variant="outline">Jij</Badge>}
           <StatusBadge member={member} />
+          {member.hasMfa && <Badge variant="outline">2FA aan</Badge>}
         </CardTitle>
         <CardDescription className="break-all">
           {member.email ?? "Geen e-mailadres"}
@@ -76,6 +77,7 @@ function MemberCard({ member, isSelf }: { member: TeamMember; isSelf: boolean })
             <RoleForm staffId={member.id} role={member.role} name={member.displayName} />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               {member.isActive && <LoginLinkForm staffId={member.id} name={member.displayName} />}
+              {member.hasMfa && <MfaResetForm staffId={member.id} name={member.displayName} />}
               <ActiveToggle
                 staffId={member.id}
                 name={member.displayName}
