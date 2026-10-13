@@ -1,0 +1,440 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  public: {
+    Tables: {
+      activity_log: {
+        Row: {
+          action: string;
+          actor_id: string | null;
+          details: NonNullable<Json>;
+          entity_id: string | null;
+          entity_type: string;
+          id: number;
+          occurred_at: string;
+          project_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          action: string;
+          actor_id?: string | null;
+          details?: NonNullable<Json>;
+          entity_id?: string | null;
+          entity_type: string;
+          id?: never;
+          occurred_at?: string;
+          project_id?: string | null;
+        };
+        Update: {
+          action?: string;
+          actor_id?: string | null;
+          details?: NonNullable<Json>;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: never;
+          occurred_at?: string;
+          project_id?: string | null;
+        };
+        Relationships: [];
+      };
+      events: {
+        Row: {
+          capacity: number | null;
+          created_at: string;
+          description: string | null;
+          ends_at: string | null;
+          entry_fee_gta: number;
+          id: string;
+          location: string | null;
+          project_id: string;
+          registration_mode: Database["public"]["Enums"]["registration_mode"];
+          rules: string | null;
+          slug: string;
+          starts_at: string | null;
+          summary: string | null;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          capacity?: number | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at?: string | null;
+          entry_fee_gta?: number;
+          id?: string;
+          location?: string | null;
+          project_id: string;
+          registration_mode?: Database["public"]["Enums"]["registration_mode"];
+          rules?: string | null;
+          slug: string;
+          starts_at?: string | null;
+          summary?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          capacity?: number | null;
+          created_at?: string;
+          description?: string | null;
+          ends_at?: string | null;
+          entry_fee_gta?: number;
+          id?: string;
+          location?: string | null;
+          project_id?: string;
+          registration_mode?: Database["public"]["Enums"]["registration_mode"];
+          rules?: string | null;
+          slug?: string;
+          starts_at?: string | null;
+          summary?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "events_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: true;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      project_members: {
+        Row: {
+          added_by: string | null;
+          created_at: string;
+          permission: Database["public"]["Enums"]["project_permission"];
+          project_id: string;
+          staff_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          added_by?: string | null;
+          created_at?: string;
+          permission?: Database["public"]["Enums"]["project_permission"];
+          project_id: string;
+          staff_id: string;
+        };
+        Update: {
+          added_by?: string | null;
+          created_at?: string;
+          permission?: Database["public"]["Enums"]["project_permission"];
+          project_id?: string;
+          staff_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "project_members_added_by_fkey";
+            columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "project_members_staff_id_fkey";
+            columns: ["staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      projects: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          id: string;
+          owner_id: string;
+          status: Database["public"]["Enums"]["project_status"];
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: string;
+          owner_id: string;
+          status?: Database["public"]["Enums"]["project_status"];
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          id?: string;
+          owner_id?: string;
+          status?: Database["public"]["Enums"]["project_status"];
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "projects_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "projects_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      staff_invitations: {
+        Row: {
+          claimed_at: string | null;
+          created_at: string;
+          display_name: string;
+          email: string;
+          expires_at: string;
+          id: string;
+          invited_by: string | null;
+          revoked_at: string | null;
+          role: Database["public"]["Enums"]["staff_role"];
+          user_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          claimed_at?: string | null;
+          created_at?: string;
+          display_name: string;
+          email: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          revoked_at?: string | null;
+          role?: Database["public"]["Enums"]["staff_role"];
+          user_id?: string | null;
+        };
+        Update: {
+          claimed_at?: string | null;
+          created_at?: string;
+          display_name?: string;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          revoked_at?: string | null;
+          role?: Database["public"]["Enums"]["staff_role"];
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_invitations_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      staff_profiles: {
+        Row: {
+          created_at: string;
+          display_name: string;
+          id: string;
+          invited_by: string | null;
+          is_active: boolean;
+          role: Database["public"]["Enums"]["staff_role"];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          display_name: string;
+          id: string;
+          invited_by?: string | null;
+          is_active?: boolean;
+          role?: Database["public"]["Enums"]["staff_role"];
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          display_name?: string;
+          id?: string;
+          invited_by?: string | null;
+          is_active?: boolean;
+          role?: Database["public"]["Enums"]["staff_role"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_profiles_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      consume_rate_limit: {
+        Args: { limit_key: string; max_hits: number; window_seconds: number };
+        Returns: boolean;
+      };
+      log_security_event: {
+        Args: { security_event: string; target_staff_id: string };
+        Returns: undefined;
+      };
+      staff_with_mfa: { Args: Record<PropertyKey, never>; Returns: string[] };
+    };
+    Enums: {
+      project_permission: "editor" | "commenter";
+      project_status:
+        | "idea"
+        | "under_review"
+        | "approved"
+        | "in_preparation"
+        | "published"
+        | "completed"
+        | "archived"
+        | "cancelled";
+      registration_mode: "closed" | "open" | "approval";
+      staff_role: "admin" | "organizer" | "team_member";
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
+};
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">];
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R;
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I;
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U;
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    keyof DefaultSchema["CompositeTypes"] | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never;
+
+export const Constants = {
+  public: {
+    Enums: {
+      project_permission: ["editor", "commenter"],
+      project_status: [
+        "idea",
+        "under_review",
+        "approved",
+        "in_preparation",
+        "published",
+        "completed",
+        "archived",
+        "cancelled",
+      ],
+      registration_mode: ["closed", "open", "approval"],
+      staff_role: ["admin", "organizer", "team_member"],
+    },
+  },
+} as const;

@@ -1,30 +1,37 @@
-# Skyline Entertainment — Claude Code starter
+# Skyline Entertainment
 
-Copy `CLAUDE.md` and the `.claude/skills/` folder to the root of your new GitHub repository. These are build instructions, **not yet the application**. Open that repository in Claude Code, then use the prompt below.
+Evenementenplatform voor Skyline Entertainment binnen GTA RP: een publieke site waar spelers zich
+met alleen hun GTA RP-naam inschrijven, en een afgeschermd intern systeem voor projecten, planning,
+deelnemers en financiën. Draait volledig op gratis tiers (Vercel Hobby, Supabase Free, Cloudflare
+Turnstile).
 
-## Starter prompt for Claude Code
+**Stack:** Next.js 16 (App Router, TypeScript strict), Tailwind CSS v4, shadcn/ui, Supabase
+(PostgreSQL + RLS + Auth), Zod, Vitest, Playwright, pgTAP.
 
-Read `CLAUDE.md` and every relevant skill. Build phase A first. Inspect repository state, propose architecture and a practical sequence, then implement the initial scaffold, staff-only auth, database migrations/RLS tests, design system and GitHub CI. Do not build public accounts. Before generating a public signup, implement durable rate limiting, server-side Turnstile validation and atomic capacity/unique name constraints. Do not deploy to production without my explicit approval. Show test results and required Vercel/Supabase configuration.
+## Documentatie
 
-## Skills included
+- [docs/setup.md](docs/setup.md): lokaal ontwikkelen en online omgevingen koppelen
+- [docs/architecture.md](docs/architecture.md): architectuur, datamodel, fasering en risico's
+- [docs/decisions.md](docs/decisions.md): technische beslissingen
+- [docs/progress.md](docs/progress.md): voortgang, testresultaten en openstaande acties
+- [CLAUDE.md](CLAUDE.md): projectregels (centrale bron)
 
-- `architecture-planning`
-- `supabase-security`
-- `public-registration-abuse`
-- `gta-map-editor`
-- `event-project-workflows`
-- `crm-finance-reporting`
-- `ui-ux-accessibility`
-- `github-vercel-release`
-- `quality-security-testing`
+## Snel starten
 
-## Suggested services
-- GitHub: source control and code review.
-- Vercel: hosting and preview deployments.
-- Supabase: PostgreSQL, RLS, staff auth and storage.
-- Cloudflare Turnstile: anti-bot verification.
-- Redis/Upstash or comparable managed KV: durable rate limiting.
-- Leaflet: mapping UI; GTA tiles must be independently licensed/approved.
+```bash
+npm install
+npm run db:start            # vereist Docker
+cp .env.example .env.local  # vul in met: npx supabase status -o env
+npm run dev
+```
 
-## Note
-Without a verified real player ID, it is impossible to guarantee one human signs up only once. Technical signals can reduce abuse but must not be presented as identity proof.
+## Claude Code-skills
+
+`.claude/skills/` bevat werkinstructies per onderwerp: `architecture-planning`, `supabase-security`,
+`public-registration-abuse`, `gta-map-editor`, `event-project-workflows`, `crm-finance-reporting`,
+`ui-ux-accessibility`, `github-vercel-release`, `quality-security-testing`.
+
+## Let op
+
+Zonder geverifieerde speler-ID is het onmogelijk te garanderen dat één persoon zich maar één keer
+inschrijft. Technische signalen beperken misbruik, maar zijn geen identiteitsbewijs.
