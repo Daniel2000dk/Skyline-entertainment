@@ -24,6 +24,11 @@ Build Skyline Entertainment: a secure, fast, easy-to-use GTA RP event management
 - Production secrets only in Vercel environment variables and local .env.local (gitignored). .env.example may contain names, no values. Different credentials/environments for preview versus production.
 - Protect destructive actions with authorization, confirmation and activity logging. Test security regressions before deploy.
 
+## Cost and efficiency constraints — non-negotiable
+- **The project must not cost money.** Use only free tiers (GitHub Free, Vercel Hobby, Supabase Free, Cloudflare Turnstile free). Never enable paid plans, add-ons, paid APIs or usage-based billing, and never add a service that requires a credit card, without the owner's explicit approval.
+- Prefer capabilities we already have over extra services (e.g. durable rate limiting in Supabase Postgres instead of a separate paid KV store). Stay well inside free-tier quotas: no unnecessary realtime, storage, egress, cron jobs or serverless invocations.
+- Work as efficiently as possible: smallest change that meets the requirement, no speculative features, reuse existing components/code, minimal dependencies. Keep CI fast and cheap (run only what the change needs, cache dependencies, cancel superseded runs).
+
 ## Suggested stack
 - Next.js App Router + TypeScript strict mode, Tailwind CSS, accessible UI components, Zod, React Hook Form where useful.
 - Supabase PostgreSQL, RLS, staff Supabase Auth, Storage where needed. Use database migrations in git.
