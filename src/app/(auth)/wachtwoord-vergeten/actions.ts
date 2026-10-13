@@ -1,5 +1,6 @@
 "use server";
 
+import { siteUrl } from "@/lib/env";
 import { formValue, type FormState } from "@/lib/forms";
 import { clientIp, consumeRateLimits } from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
@@ -27,11 +28,15 @@ export async function requestPasswordReset(
     { scope: "reset:account", value: parsed.data, max: 3, windowSeconds: 60 * 60 },
   ]);
 
-  // The answer never reveals whether an account exists or was throttled
-  // per account; only the IP limit is reported, which says nothing about it.
+  // The response is identical whether the account exists, the email was
+  // sent or a limit was hit, so the form cannot be used to probe accounts.
   if (allowed) {
     const supabase = await createClient();
-    await supabase.auth.resetPasswordForEmail(parsed.data);
+    // The email template links to {{ .RedirectTo }}, so links point at the
+    // environment (preview/production) where the reset was requested.
+    await supabase.auth.resetPasswordForEmail(parsed.data, {
+      redirectTo: `${siteUrl()}/bevestigen`,
+    });
   }
   return { status: "success", message: SENT_MESSAGE };
 }
