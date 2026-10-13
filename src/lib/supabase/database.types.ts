@@ -292,7 +292,10 @@ export type Database = {
         Args: { limit_key: string; max_hits: number; window_seconds: number };
         Returns: boolean;
       };
-      log_mfa_event: { Args: { mfa_event: string; target_staff_id: string }; Returns: undefined };
+      log_security_event: {
+        Args: { security_event: string; target_staff_id: string };
+        Returns: undefined;
+      };
       staff_with_mfa: { Args: Record<PropertyKey, never>; Returns: string[] };
     };
     Enums: {

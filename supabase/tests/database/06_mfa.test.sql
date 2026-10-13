@@ -1,5 +1,5 @@
 begin;
-select plan(16);
+select plan(19);
 
 select tests.create_user('met-mfa@skyline.test', 'admin');
 select tests.create_user('zonder-mfa@skyline.test', 'team_member');
@@ -40,16 +40,16 @@ reset role;
 
 select tests.authenticate_as('zonder-mfa@skyline.test');
 select lives_ok(
-  $$select public.log_mfa_event(tests.user_id('zonder-mfa@skyline.test'), 'enabled')$$,
+  $$select public.log_security_event(tests.user_id('zonder-mfa@skyline.test'), 'mfa.enabled')$$,
   'staff can record their own MFA change'
 );
 select throws_ok(
-  $$select public.log_mfa_event(tests.user_id('met-mfa@skyline.test'), 'disabled')$$,
+  $$select public.log_security_event(tests.user_id('met-mfa@skyline.test'), 'mfa.disabled')$$,
   '42501', null,
   'staff cannot record MFA changes for someone else'
 );
 select throws_ok(
-  $$select public.log_mfa_event(tests.user_id('half-ingesteld@skyline.test'), 'reset')$$,
+  $$select public.log_security_event(tests.user_id('half-ingesteld@skyline.test'), 'mfa.reset')$$,
   '42501', null,
   'non-admins cannot record an MFA reset'
 );
@@ -57,11 +57,11 @@ reset role;
 
 select tests.authenticate_as('met-mfa@skyline.test', 'aal2');
 select lives_ok(
-  $$select public.log_mfa_event(tests.user_id('zonder-mfa@skyline.test'), 'reset')$$,
+  $$select public.log_security_event(tests.user_id('zonder-mfa@skyline.test'), 'mfa.reset')$$,
   'admins can record an MFA reset of another staff member'
 );
 select throws_ok(
-  $$select public.log_mfa_event(tests.user_id('met-mfa@skyline.test'), 'reset')$$,
+  $$select public.log_security_event(tests.user_id('met-mfa@skyline.test'), 'mfa.reset')$$,
   '42501', null,
   'admins cannot record a reset of their own MFA'
 );
@@ -70,6 +70,28 @@ select is(
    where action = 'mfa.reset' and entity_id = tests.user_id('zonder-mfa@skyline.test')::text),
   tests.user_id('met-mfa@skyline.test'),
   'the MFA reset is logged with the acting admin'
+);
+reset role;
+
+-- Login links ------------------------------------------------------------------
+
+select tests.authenticate_as('zonder-mfa@skyline.test');
+select throws_ok(
+  $q$select public.log_security_event(tests.user_id('half-ingesteld@skyline.test'), 'login_link.created')$q$,
+  '42501', null,
+  'non-admins cannot record login links'
+);
+select throws_ok(
+  $q$select public.log_security_event(tests.user_id('zonder-mfa@skyline.test'), 'anything')$q$,
+  '22023', null,
+  'unknown security events are rejected'
+);
+reset role;
+
+select tests.authenticate_as('met-mfa@skyline.test', 'aal2');
+select lives_ok(
+  $q$select public.log_security_event(tests.user_id('zonder-mfa@skyline.test'), 'login_link.created')$q$,
+  'admins record login links they create for others'
 );
 reset role;
 

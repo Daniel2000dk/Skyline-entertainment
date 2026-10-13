@@ -78,7 +78,10 @@ export async function confirmMfaEnrollment(
     };
   }
 
-  await supabase.rpc("log_mfa_event", { target_staff_id: staff.id, mfa_event: "enabled" });
+  await supabase.rpc("log_security_event", {
+    target_staff_id: staff.id,
+    security_event: "mfa.enabled",
+  });
   refresh();
   return { status: "success", message: "Tweestapsverificatie staat aan." };
 }
@@ -102,7 +105,10 @@ export async function disableMfa(): Promise<FormState> {
     if (error) return { status: "error", message: "Uitzetten is mislukt. Probeer het opnieuw." };
   }
 
-  await supabase.rpc("log_mfa_event", { target_staff_id: staff.id, mfa_event: "disabled" });
+  await supabase.rpc("log_security_event", {
+    target_staff_id: staff.id,
+    security_event: "mfa.disabled",
+  });
   refresh();
   return { status: "success", message: "Tweestapsverificatie staat uit." };
 }

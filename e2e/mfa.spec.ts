@@ -49,6 +49,9 @@ test("staff can enable MFA and then need a code to log in", async ({ page }) => 
   await expect(page).toHaveURL(/\/mfa\?next=%2Fintern$/);
   await page.goto("/intern/team");
   await expect(page).toHaveURL(/\/mfa$/);
+  // A stolen password must not be enough to change the password either.
+  await page.goto("/wachtwoord-instellen");
+  await expect(page).toHaveURL(/\/mfa$/);
 
   await page.getByLabel(CODE_LABEL).fill("000000");
   await page.getByRole("button", { name: "Bevestigen" }).click();

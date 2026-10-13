@@ -1,21 +1,23 @@
--- MFA support for admins: an audit trail for MFA changes and an overview of
--- who has MFA. MFA itself is managed by Supabase Auth, so the app records the
--- event right after a successful change; the function decides who may record what.
+-- Security events for admins: an audit trail for MFA changes and login links,
+-- and an overview of who has MFA. These actions happen in Supabase Auth, so
+-- the app records them right after success; the function decides who may
+-- record what (staff only about themselves, admins about others).
 
-create function public.log_mfa_event(target_staff_id uuid, mfa_event text)
+create function public.log_security_event(target_staff_id uuid, security_event text)
 returns void
 language plpgsql
 security definer
 set search_path = ''
 as $$
 begin
-  if mfa_event is null or mfa_event not in ('enabled', 'disabled', 'reset') then
-    raise exception 'Invalid MFA event' using errcode = '22023';
+  if security_event is null
+     or security_event not in ('mfa.enabled', 'mfa.disabled', 'mfa.reset', 'login_link.created') then
+    raise exception 'Invalid security event' using errcode = '22023';
   end if;
 
-  if mfa_event = 'reset' then
+  if security_event in ('mfa.reset', 'login_link.created') then
     if not private.is_admin() or target_staff_id = (select auth.uid()) then
-      raise exception 'Only admins can reset MFA of other staff' using errcode = '42501';
+      raise exception 'Only admins can record this for other staff' using errcode = '42501';
     end if;
   elsif target_staff_id is distinct from (select auth.uid()) or not private.is_staff() then
     raise exception 'Staff can only record their own MFA changes' using errcode = '42501';
@@ -26,12 +28,12 @@ begin
   end if;
 
   insert into public.activity_log (actor_id, action, entity_type, entity_id)
-  values ((select auth.uid()), 'mfa.' || mfa_event, 'staff_mfa', target_staff_id::text);
+  values ((select auth.uid()), security_event, 'staff_security', target_staff_id::text);
 end;
 $$;
 
-revoke all on function public.log_mfa_event(uuid, text) from public, anon;
-grant execute on function public.log_mfa_event(uuid, text) to authenticated;
+revoke all on function public.log_security_event(uuid, text) from public, anon;
+grant execute on function public.log_security_event(uuid, text) to authenticated;
 
 -- Admin overview: which staff have MFA enabled (Auth's user list does not
 -- include factors). Non-admins get an empty result.

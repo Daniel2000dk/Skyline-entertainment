@@ -63,8 +63,9 @@ Supabase Free; telefoon-MFA is betaald en wordt niet gebruikt. Voor wie MFA aanz
 `private.current_staff_role()` pas rechten bij een sessie met `aal2` (wachtwoord + code). Een
 gestolen wachtwoord alleen levert dus ook via de API niets op. MFA blijft vrijwillig maar wordt sterk
 aanbevolen; admins kunnen MFA van een ander resetten bij een verloren telefoon. Uitzetten vereist
-een code-login van maximaal 15 minuten geleden. Wijzigingen komen in de activiteitenlog via
-`log_mfa_event` (die zelf controleert wie wat mag vastleggen). We schrijven niet rechtstreeks in
+een code-login van maximaal 15 minuten geleden; wachtwoord wijzigen vereist volledige authenticatie
+(met code). MFA-wijzigingen en door admins gemaakte inloglinks komen in de activiteitenlog via
+`log_security_event` (die zelf controleert wie wat mag vastleggen). We schrijven niet rechtstreeks in
 Supabase's `auth`-schema; het gehoste platform kan dat beperken.
 
 **D15. Lokale testlimieten.** In `supabase/config.toml` staan de Auth-limieten voor inloggen en

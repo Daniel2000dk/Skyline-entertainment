@@ -42,13 +42,13 @@ _Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
 
 ## Testresultaten (lokaal, 2026-10-13)
 
-| Suite                        | Resultaat      | Dekt onder meer                                                                                                    |
-| ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Vitest (unit)                | 43/43 geslaagd | Open-redirect-bescherming, validatie, wachtwoordregels, digest, sessieversheid                                     |
-| pgTAP (database)             | 99/99 geslaagd | anon, buitenstaander, gedeactiveerd, elke rol, rol-escalatie, cross-project, audit, MFA (aal2), schema-invarianten |
-| Playwright (e2e)             | 39/39 geslaagd | Directe API-aanroepen geweigerd, login, rollen, uitnodigen, herstel, throttling, MFA, mobiel                       |
-| Lint, types, Prettier, build | geslaagd       | Ook op GitHub Actions (CI groen op PR #1)                                                                          |
-| Supabase advisors            | geen meldingen | Beveiliging en performance van het schema                                                                          |
+| Suite                        | Resultaat        | Dekt onder meer                                                                                                    |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Vitest (unit)                | 43/43 geslaagd   | Open-redirect-bescherming, validatie, wachtwoordregels, digest, sessieversheid                                     |
+| pgTAP (database)             | 102/102 geslaagd | anon, buitenstaander, gedeactiveerd, elke rol, rol-escalatie, cross-project, audit, MFA (aal2), schema-invarianten |
+| Playwright (e2e)             | 39/39 geslaagd   | Directe API-aanroepen geweigerd, login, rollen, uitnodigen, herstel, throttling, MFA, mobiel                       |
+| Lint, types, Prettier, build | geslaagd         | Ook op GitHub Actions (CI groen op PR #1)                                                                          |
+| Supabase advisors            | geen meldingen   | Beveiliging en performance van het schema                                                                          |
 
 ## Acties voor jou
 

@@ -80,9 +80,12 @@ export async function createLoginLink(
   _prev: LinkFormState,
   formData: FormData,
 ): Promise<LinkFormState> {
-  await requireRole(["admin"]);
+  const currentAdmin = await requireRole(["admin"]);
   const staffId = staffIdSchema.safeParse(formValue(formData, "staffId"));
   if (!staffId.success) return { status: "error", message: "Onbekende medewerker." };
+  if (staffId.data === currentAdmin.id) {
+    return { status: "error", message: "Je eigen wachtwoord wijzig je via Account." };
+  }
 
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.getUserById(staffId.data);
@@ -91,6 +94,13 @@ export async function createLoginLink(
 
   const link = await generateAuthLink("recovery", email);
   if (!link.ok) return { status: "error", message: "Link maken is mislukt. Probeer het opnieuw." };
+
+  // A login link lets its holder set a new password: always audited.
+  const supabase = await createClient();
+  await supabase.rpc("log_security_event", {
+    target_staff_id: staffId.data,
+    security_event: "login_link.created",
+  });
   return { status: "success", link: link.url };
 }
 
@@ -193,7 +203,10 @@ export async function resetStaffMfa(_prev: FormState, formData: FormData): Promi
   }
 
   const supabase = await createClient();
-  await supabase.rpc("log_mfa_event", { target_staff_id: staffId.data, mfa_event: "reset" });
+  await supabase.rpc("log_security_event", {
+    target_staff_id: staffId.data,
+    security_event: "mfa.reset",
+  });
   refresh();
   return { status: "success", message: "Tweestapsverificatie is gereset." };
 }
