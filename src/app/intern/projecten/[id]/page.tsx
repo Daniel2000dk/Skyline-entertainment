@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Checklist } from "@/components/projects/checklist";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireStaff } from "@/lib/auth/staff";
 import { getIdeaForProject } from "@/lib/ideas/queries";
@@ -12,6 +13,7 @@ import {
   listEventTypes,
   projectRights,
 } from "@/lib/projects/queries";
+import { listTasks } from "@/lib/tasks/queries";
 import { DangerZone } from "./_components/danger-zone";
 import { DetailsSection } from "./_components/details-section";
 import { MembersSection } from "./_components/members-section";
@@ -25,12 +27,16 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/intern
   if (!project) notFound();
 
   const { canEdit, canManage } = projectRights(staff, project);
-  const [eventTypes, activeStaff, checklist, originIdea] = await Promise.all([
+  const [eventTypes, activeStaff, checklist, originIdea, tasks] = await Promise.all([
     listEventTypes(),
     canManage ? listActiveStaff() : Promise.resolve([]),
     listChecklist(project.id),
     getIdeaForProject(project.id),
+    listTasks({ scope: "all", projectId: project.id }),
   ]);
+  const openTasks = tasks.filter((task) => task.status !== "done");
+  const overdueTasks = openTasks.filter((task) => task.overdue).length;
+  const tasksHref = `/intern/projecten/${project.id}/taken`;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
@@ -73,6 +79,31 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/intern
             </CardContent>
           </Card>
         )}
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <h2>Taken</h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 text-sm">
+            <p>
+              {openTasks.length} open van {tasks.length}
+              {overdueTasks > 0 && (
+                <span className="text-destructive"> · {overdueTasks} te laat</span>
+              )}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {canEdit && (
+                <Link href={`${tasksHref}#taak-toevoegen`} className={buttonVariants()}>
+                  Taak toevoegen
+                </Link>
+              )}
+              <Link href={tasksHref} className={buttonVariants({ variant: "outline" })}>
+                Alle taken
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
         {canManage && <StatusSection projectId={project.id} status={project.status} />}
         <MembersSection project={project} staff={activeStaff} canManage={canManage} />
         {canManage && <DangerZone projectId={project.id} title={project.title} />}

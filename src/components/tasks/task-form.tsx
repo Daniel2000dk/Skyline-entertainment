@@ -7,7 +7,12 @@ import { FormMessage } from "@/components/form/form-message";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { isoToLocalInput } from "@/lib/datetime";
 import { idleFormState, type FormState } from "@/lib/forms";
-import { PRIORITY_LABELS, TASK_PRIORITIES } from "@/lib/projects/labels";
+import {
+  PRIORITY_LABELS,
+  TASK_PRIORITIES,
+  TASK_STATUS_LABELS,
+  TASK_STATUSES,
+} from "@/lib/projects/labels";
 import type { StaffOption } from "@/lib/projects/queries";
 import type { TaskDetail } from "@/lib/tasks/queries";
 
@@ -61,6 +66,7 @@ export function TaskForm({
         id={`${prefix}-due`}
         name="dueAt"
         label="Deadline"
+        hint="Verschijnt automatisch in de planning."
         type="datetime-local"
         defaultValue={v?.dueAt ?? isoToLocalInput(task?.dueAt)}
         error={state.fieldErrors?.dueAt}
@@ -75,6 +81,17 @@ export function TaskForm({
         }))}
         defaultValue={v?.priority ?? task?.priority ?? "normal"}
         error={state.fieldErrors?.priority}
+      />
+      <SelectField
+        id={`${prefix}-status`}
+        name="status"
+        label="Status"
+        options={TASK_STATUSES.map((status) => ({
+          value: status,
+          label: TASK_STATUS_LABELS[status],
+        }))}
+        defaultValue={v?.status ?? task?.status ?? "todo"}
+        error={state.fieldErrors?.status}
       />
       <TextareaField
         id={`${prefix}-description`}
