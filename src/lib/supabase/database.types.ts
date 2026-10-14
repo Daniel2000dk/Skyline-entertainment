@@ -96,6 +96,82 @@ export type Database = {
           },
         ];
       };
+      comments: {
+        Row: {
+          author_id: string | null;
+          body: string;
+          created_at: string;
+          deleted_at: string | null;
+          edited_at: string | null;
+          id: string;
+          parent_id: string | null;
+          project_id: string | null;
+          suggestion_id: string | null;
+          task_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id?: string | null;
+          body: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          edited_at?: string | null;
+          id?: string;
+          parent_id?: string | null;
+          project_id?: string | null;
+          suggestion_id?: string | null;
+          task_id?: string | null;
+        };
+        Update: {
+          author_id?: string | null;
+          body?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          edited_at?: string | null;
+          id?: string;
+          parent_id?: string | null;
+          project_id?: string | null;
+          suggestion_id?: string | null;
+          task_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey";
+            columns: ["parent_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_suggestion_id_fkey";
+            columns: ["suggestion_id"];
+            isOneToOne: false;
+            referencedRelation: "suggestions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "tasks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       content_revisions: {
         Row: {
           changed_at: string;
@@ -471,6 +547,71 @@ export type Database = {
           },
         ];
       };
+      suggestions: {
+        Row: {
+          author_id: string | null;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          decision_note: string | null;
+          field: string | null;
+          id: string;
+          message: string;
+          project_id: string;
+          proposed_value: string | null;
+          status: Database["public"]["Enums"]["suggestion_status"];
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision_note?: string | null;
+          field?: string | null;
+          id?: string;
+          message: string;
+          project_id: string;
+          proposed_value?: string | null;
+          status?: Database["public"]["Enums"]["suggestion_status"];
+        };
+        Update: {
+          author_id?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision_note?: string | null;
+          field?: string | null;
+          id?: string;
+          message?: string;
+          project_id?: string;
+          proposed_value?: string | null;
+          status?: Database["public"]["Enums"]["suggestion_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "suggestions_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "suggestions_decided_by_fkey";
+            columns: ["decided_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "suggestions_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       task_templates: {
         Row: {
           created_at: string;
@@ -612,6 +753,10 @@ export type Database = {
         };
         Returns: string;
       };
+      decide_suggestion: {
+        Args: { p_accept: boolean; p_note?: string; p_suggestion_id: string };
+        Returns: undefined;
+      };
       log_security_event: {
         Args: { security_event: string; target_staff_id: string };
         Returns: undefined;
@@ -651,6 +796,7 @@ export type Database = {
         | "cancelled";
       registration_mode: "closed" | "open" | "approval";
       staff_role: "admin" | "organizer" | "team_member";
+      suggestion_status: "open" | "accepted" | "rejected" | "withdrawn";
       task_priority: "low" | "normal" | "high" | "urgent";
       task_status: "todo" | "in_progress" | "done";
     };
@@ -777,6 +923,7 @@ export const Constants = {
       ],
       registration_mode: ["closed", "open", "approval"],
       staff_role: ["admin", "organizer", "team_member"],
+      suggestion_status: ["open", "accepted", "rejected", "withdrawn"],
       task_priority: ["low", "normal", "high", "urgent"],
       task_status: ["todo", "in_progress", "done"],
     },

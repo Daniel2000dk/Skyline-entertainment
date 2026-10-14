@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import { admin, createStaff, loginAsStaff, useRandomIp, type TestUser } from "./support/helpers";
 
@@ -17,17 +18,15 @@ async function projectWithMembers(
   if (error) throw error;
   await admin
     .from("events")
-    .insert({ project_id: project.id, title: project.title, slug: `taken-${Date.now()}` });
+    .insert({ project_id: project.id, title: project.title, slug: `taken-${randomUUID()}` });
   if (members.length) {
-    await admin
-      .from("project_members")
-      .insert(
-        members.map((member) => ({
-          project_id: project.id,
-          staff_id: member.user.id,
-          permission: member.permission,
-        })),
-      );
+    await admin.from("project_members").insert(
+      members.map((member) => ({
+        project_id: project.id,
+        staff_id: member.user.id,
+        permission: member.permission,
+      })),
+    );
   }
   return project;
 }

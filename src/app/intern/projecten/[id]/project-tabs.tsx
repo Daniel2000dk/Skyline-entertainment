@@ -8,6 +8,7 @@ const TABS = [
   { segment: "", label: "Overzicht" },
   { segment: "taken", label: "Taken" },
   { segment: "draaiboek", label: "Draaiboek" },
+  { segment: "discussie", label: "Discussie" },
   { segment: "geschiedenis", label: "Geschiedenis" },
 ] as const;
 

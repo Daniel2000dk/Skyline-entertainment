@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { moveTask } from "@/app/intern/taken/actions";
+import { Discussion } from "@/components/discussions/discussion";
 import { Checklist } from "@/components/projects/checklist";
 import { DueLabel, PriorityBadge } from "@/components/tasks/task-board";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireStaff } from "@/lib/auth/staff";
 import { formatDateTime } from "@/lib/datetime";
 import { TASK_STATUSES, TASK_STATUS_LABELS } from "@/lib/projects/labels";
+import { listThreads } from "@/lib/discussions/queries";
 import { listActiveStaff, listChecklist } from "@/lib/projects/queries";
 import { editableProjectIds, getTask } from "@/lib/tasks/queries";
 import { uuidSchema } from "@/lib/validation/projects";
@@ -28,9 +30,10 @@ export default async function TaskPage({ params }: PageProps<"/intern/taken/[id]
   const editable = await editableProjectIds();
   const canEdit = editable.has(task.projectId);
   const isAssignee = task.assigneeId === staff.id;
-  const [checklist, activeStaff] = await Promise.all([
+  const [checklist, activeStaff, threads] = await Promise.all([
     listChecklist(task.projectId, task.id),
     canEdit ? listActiveStaff() : Promise.resolve([]),
+    listThreads({ taskId: task.id }),
   ]);
 
   return (
@@ -104,6 +107,22 @@ export default async function TaskPage({ params }: PageProps<"/intern/taken/[id]
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <h2>Discussie</h2>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Discussion
+            subject={{ taskId: task.id }}
+            threads={threads}
+            currentStaffId={staff.id}
+            isAdmin={staff.role === "admin"}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
