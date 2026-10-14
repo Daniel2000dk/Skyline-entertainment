@@ -37,6 +37,129 @@ export type Database = {
         };
         Relationships: [];
       };
+      checklist_items: {
+        Row: {
+          created_at: string;
+          done_at: string | null;
+          done_by: string | null;
+          id: string;
+          is_done: boolean;
+          position: number;
+          project_id: string;
+          task_id: string | null;
+          title: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          done_at?: string | null;
+          done_by?: string | null;
+          id?: string;
+          is_done?: boolean;
+          position?: number;
+          project_id: string;
+          task_id?: string | null;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          done_at?: string | null;
+          done_by?: string | null;
+          id?: string;
+          is_done?: boolean;
+          position?: number;
+          project_id?: string;
+          task_id?: string | null;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_done_by_fkey";
+            columns: ["done_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "checklist_items_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "checklist_items_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "tasks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      content_revisions: {
+        Row: {
+          changed_at: string;
+          changed_by: string | null;
+          changed_columns: string[];
+          entity: string;
+          id: number;
+          previous: NonNullable<Json>;
+          project_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          changed_at?: string;
+          changed_by?: string | null;
+          changed_columns: string[];
+          entity: string;
+          id?: never;
+          previous: NonNullable<Json>;
+          project_id: string;
+        };
+        Update: {
+          changed_at?: string;
+          changed_by?: string | null;
+          changed_columns?: string[];
+          entity?: string;
+          id?: never;
+          previous?: NonNullable<Json>;
+          project_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_revisions_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_types: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          name: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+        };
+        Relationships: [];
+      };
       events: {
         Row: {
           capacity: number | null;
@@ -149,9 +272,11 @@ export type Database = {
       };
       projects: {
         Row: {
+          budget_gta: number;
           created_at: string;
           created_by: string | null;
           description: string | null;
+          event_type_id: string | null;
           id: string;
           owner_id: string;
           status: Database["public"]["Enums"]["project_status"];
@@ -160,9 +285,11 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          budget_gta?: number;
           created_at?: string;
           created_by?: string | null;
           description?: string | null;
+          event_type_id?: string | null;
           id?: string;
           owner_id: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -170,9 +297,11 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          budget_gta?: number;
           created_at?: string;
           created_by?: string | null;
           description?: string | null;
+          event_type_id?: string | null;
           id?: string;
           owner_id?: string;
           status?: Database["public"]["Enums"]["project_status"];
@@ -188,8 +317,67 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "projects_event_type_id_fkey";
+            columns: ["event_type_id"];
+            isOneToOne: false;
+            referencedRelation: "event_types";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "projects_owner_id_fkey";
             columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      runbook_items: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          position: number;
+          project_id: string;
+          responsible_id: string | null;
+          starts_at: string | null;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          position?: number;
+          project_id: string;
+          responsible_id?: string | null;
+          starts_at?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          position?: number;
+          project_id?: string;
+          responsible_id?: string | null;
+          starts_at?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "runbook_items_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "runbook_items_responsible_id_fkey";
+            columns: ["responsible_id"];
             isOneToOne: false;
             referencedRelation: "staff_profiles";
             referencedColumns: ["id"];
@@ -283,6 +471,129 @@ export type Database = {
           },
         ];
       };
+      task_templates: {
+        Row: {
+          created_at: string;
+          days_before_event: number;
+          description: string | null;
+          event_type_id: string;
+          id: string;
+          position: number;
+          priority: Database["public"]["Enums"]["task_priority"];
+          title: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          days_before_event?: number;
+          description?: string | null;
+          event_type_id: string;
+          id?: string;
+          position?: number;
+          priority?: Database["public"]["Enums"]["task_priority"];
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          days_before_event?: number;
+          description?: string | null;
+          event_type_id?: string;
+          id?: string;
+          position?: number;
+          priority?: Database["public"]["Enums"]["task_priority"];
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "task_templates_event_type_id_fkey";
+            columns: ["event_type_id"];
+            isOneToOne: false;
+            referencedRelation: "event_types";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tasks: {
+        Row: {
+          assignee_id: string | null;
+          completed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          due_at: string | null;
+          id: string;
+          position: number;
+          priority: Database["public"]["Enums"]["task_priority"];
+          project_id: string;
+          status: Database["public"]["Enums"]["task_status"];
+          template_id: string | null;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assignee_id?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          due_at?: string | null;
+          id?: string;
+          position?: number;
+          priority?: Database["public"]["Enums"]["task_priority"];
+          project_id: string;
+          status?: Database["public"]["Enums"]["task_status"];
+          template_id?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          assignee_id?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          due_at?: string | null;
+          id?: string;
+          position?: number;
+          priority?: Database["public"]["Enums"]["task_priority"];
+          project_id?: string;
+          status?: Database["public"]["Enums"]["task_status"];
+          template_id?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assignee_id_fkey";
+            columns: ["assignee_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tasks_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "task_templates";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -292,11 +603,39 @@ export type Database = {
         Args: { limit_key: string; max_hits: number; window_seconds: number };
         Returns: boolean;
       };
+      create_event_project: {
+        Args: {
+          p_description?: string;
+          p_event_type_id?: string;
+          p_starts_at?: string;
+          p_title: string;
+        };
+        Returns: string;
+      };
       log_security_event: {
         Args: { security_event: string; target_staff_id: string };
         Returns: undefined;
       };
+      revert_content_revision: { Args: { p_revision_id: number }; Returns: undefined };
       staff_with_mfa: { Args: Record<PropertyKey, never>; Returns: string[] };
+      update_event_project: {
+        Args: {
+          p_budget_gta: number;
+          p_capacity: number;
+          p_description: string;
+          p_ends_at: string;
+          p_entry_fee_gta: number;
+          p_event_type_id: string;
+          p_location: string;
+          p_project_id: string;
+          p_registration_mode: Database["public"]["Enums"]["registration_mode"];
+          p_rules: string;
+          p_starts_at: string;
+          p_summary: string;
+          p_title: string;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       project_permission: "editor" | "commenter";
@@ -311,6 +650,8 @@ export type Database = {
         | "cancelled";
       registration_mode: "closed" | "open" | "approval";
       staff_role: "admin" | "organizer" | "team_member";
+      task_priority: "low" | "normal" | "high" | "urgent";
+      task_status: "todo" | "in_progress" | "done";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -435,6 +776,8 @@ export const Constants = {
       ],
       registration_mode: ["closed", "open", "approval"],
       staff_role: ["admin", "organizer", "team_member"],
+      task_priority: ["low", "normal", "high", "urgent"],
+      task_status: ["todo", "in_progress", "done"],
     },
   },
 } as const;

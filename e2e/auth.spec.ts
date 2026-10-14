@@ -35,6 +35,10 @@ test("an admin can log in, sees Team and can log out", async ({ page }) => {
 
   await page.getByRole("button", { name: "Uitloggen" }).click();
   await expect(page).toHaveURL(/\/login$/);
+  // Logging out is a full page load: going back shows no internal page.
+  await page.goBack();
+  await expect(page.getByRole("heading", { name: "Welkom, Alex Admin" })).toHaveCount(0);
+  await expect(page.getByText("Jouw rol: Administrator")).toHaveCount(0);
   await page.goto("/intern");
   await expect(page).toHaveURL(/\/login\?next=%2Fintern$/);
 });

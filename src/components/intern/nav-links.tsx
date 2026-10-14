@@ -1,12 +1,16 @@
 "use client";
 
-import { LayoutDashboardIcon, UsersIcon } from "lucide-react";
+import { FolderKanbanIcon, LayoutDashboardIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { NavItem } from "./nav-items";
 
-const icons = { dashboard: LayoutDashboardIcon, team: UsersIcon } as const;
+const icons = {
+  dashboard: LayoutDashboardIcon,
+  projects: FolderKanbanIcon,
+  team: UsersIcon,
+} as const;
 
 function isActive(pathname: string, href: string) {
   return href === "/intern"

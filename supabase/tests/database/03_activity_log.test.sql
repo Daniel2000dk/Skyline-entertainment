@@ -17,12 +17,14 @@ reset role;
 -- Entries are written automatically with the acting user ---------------------
 
 select is(
-  (select actor_id from public.activity_log where action = 'projects.insert'),
+  (select actor_id from public.activity_log where action = 'projects.insert'
+     and entity_id = (select id::text from public.projects where title = 'Jetski Race')),
   tests.user_id('manager@skyline.test'),
   'creating a project is logged with the actor'
 );
 select is(
-  (select details -> 'diff' -> 'status' from public.activity_log where action = 'projects.update'),
+  (select details -> 'diff' -> 'status' from public.activity_log where action = 'projects.update'
+     and entity_id = (select id::text from public.projects where title = 'Jetski Race')),
   '{"from": "idea", "to": "under_review"}'::jsonb,
   'status changes are logged with before and after values'
 );
@@ -77,9 +79,12 @@ reset role;
 
 -- History survives deletion ---------------------------------------------------------
 
+create temp table deleted_project on commit drop as
+  select id::text as id from public.projects where title = 'Jetski Race';
 delete from public.projects where title = 'Jetski Race';
 select ok(
-  exists (select 1 from public.activity_log where action = 'projects.delete'),
+  exists (select 1 from public.activity_log where action = 'projects.delete'
+          and entity_id = (select id from deleted_project)),
   'deleting a project keeps its history'
 );
 

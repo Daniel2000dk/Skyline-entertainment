@@ -1,6 +1,6 @@
 import { LogOutIcon, UserCogIcon } from "lucide-react";
 import Link from "next/link";
-import { logout } from "@/app/intern/actions";
+import { LogoutForm } from "@/components/auth/logout-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ROLE_LABELS } from "@/lib/auth/roles";
 import type { CurrentStaff } from "@/lib/auth/staff";
@@ -21,7 +21,7 @@ export function UserPanel({ staff }: { staff: CurrentStaff }) {
         >
           <UserCogIcon aria-hidden="true" />
         </Link>
-        <form action={logout}>
+        <LogoutForm>
           <Button
             type="submit"
             variant="ghost"
@@ -31,7 +31,7 @@ export function UserPanel({ staff }: { staff: CurrentStaff }) {
           >
             <LogOutIcon aria-hidden="true" />
           </Button>
-        </form>
+        </LogoutForm>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ export function CodeField({
       pattern="[0-9]{6}"
       maxLength={6}
       required
-      className="font-mono tracking-[0.3em]"
+      inputClassName="font-mono tracking-[0.3em]"
       error={error}
     />
   );

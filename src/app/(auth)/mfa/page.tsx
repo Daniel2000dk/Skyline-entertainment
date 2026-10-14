@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { logout } from "@/app/intern/actions";
+import { LogoutForm } from "@/components/auth/logout-form";
 import { AuthCard } from "@/components/auth/auth-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,11 +30,11 @@ async function MfaContent() {
     >
       <div className="flex flex-col gap-4">
         <MfaForm />
-        <form action={logout}>
+        <LogoutForm>
           <Button type="submit" variant="ghost" className="w-full">
             Annuleren en uitloggen
           </Button>
-        </form>
+        </LogoutForm>
       </div>
     </AuthCard>
   );
