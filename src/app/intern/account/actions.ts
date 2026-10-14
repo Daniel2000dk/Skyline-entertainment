@@ -1,6 +1,6 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { revalidateInternal } from "@/lib/revalidate";
 import { z } from "zod";
 import { isRecentlyAuthenticated } from "@/lib/auth/recent-auth";
 import { requireStaff } from "@/lib/auth/staff";
@@ -82,7 +82,7 @@ export async function confirmMfaEnrollment(
     target_staff_id: staff.id,
     security_event: "mfa.enabled",
   });
-  refresh();
+  revalidateInternal();
   return { status: "success", message: "Tweestapsverificatie staat aan." };
 }
 
@@ -109,6 +109,6 @@ export async function disableMfa(): Promise<FormState> {
     target_staff_id: staff.id,
     security_event: "mfa.disabled",
   });
-  refresh();
+  revalidateInternal();
   return { status: "success", message: "Tweestapsverificatie staat uit." };
 }

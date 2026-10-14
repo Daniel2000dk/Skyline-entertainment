@@ -1,6 +1,6 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { revalidateInternal } from "@/lib/revalidate";
 import { z } from "zod";
 import { generateAuthLink } from "@/lib/auth/links";
 import { requireRole } from "@/lib/auth/staff";
@@ -67,7 +67,7 @@ export async function inviteStaff(
     };
   }
 
-  refresh();
+  revalidateInternal();
   return {
     status: "success",
     message: `${parsed.data.displayName} is uitgenodigd als medewerker.`,
@@ -128,7 +128,7 @@ export async function updateStaffRole(_prev: FormState, formData: FormData): Pro
   }
   if (!data?.length) return { status: "error", message: "Onbekende medewerker." };
 
-  refresh();
+  revalidateInternal();
   return { status: "success", message: "Rol opgeslagen." };
 }
 
@@ -166,7 +166,7 @@ export async function setStaffActive(_prev: FormState, formData: FormData): Prom
     ban_duration: isActive ? "none" : "876000h",
   });
 
-  refresh();
+  revalidateInternal();
   if (banError) {
     return {
       status: "error",
@@ -207,6 +207,6 @@ export async function resetStaffMfa(_prev: FormState, formData: FormData): Promi
     target_staff_id: staffId.data,
     security_event: "mfa.reset",
   });
-  refresh();
+  revalidateInternal();
   return { status: "success", message: "Tweestapsverificatie is gereset." };
 }

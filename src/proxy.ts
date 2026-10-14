@@ -50,5 +50,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/intern/:path*", "/wachtwoord-instellen", "/mfa"],
+  matcher: ["/intern/:path*", "/wachtwoord-instellen", "/mfa", "/uitloggen"],
 };

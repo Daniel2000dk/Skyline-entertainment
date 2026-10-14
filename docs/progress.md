@@ -1,6 +1,6 @@
 # Voortgang
 
-_Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
+_Laatst bijgewerkt: 2026-10-14 — fase B in uitvoering_
 
 ## Afgerond
 
@@ -29,9 +29,13 @@ _Laatst bijgewerkt: 2026-10-13 — fase A (branch `feat/phase-a-foundation`)_
 - MFA (TOTP via authenticator-app): instellen en uitzetten via **Account**, code-stap bij het
   inloggen, afgedwongen in de database (`aal2`), admin-reset bij verloren telefoon, audit-log.
 
-## In uitvoering
+## In uitvoering — fase B (projectmanagement)
 
-- Niets; fase A is klaar voor review zodra de online preview is gekoppeld.
+- ✅ **Projecten** (slice 1): evenementtypen met standaardtaken, project aanmaken vanuit een
+  template, details bewerken (project + evenement in één keer), status, team en rechten, checklist,
+  draaiboek, geschiedenis met terugzetten, verwijderen met bevestiging. Uitloggen wist nu ook
+  verborgen pagina's uit de browser.
+- ⏳ Taken (Kanban), discussies en suggesties, bijlagen en ideeënbord, agenda, dashboard.
 
 ## Openstaande punten
 
