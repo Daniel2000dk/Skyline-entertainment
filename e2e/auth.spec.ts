@@ -6,12 +6,12 @@ import {
   login,
   loginAsStaff,
   uniqueEmail,
-  useRandomIp,
+  assignRandomIp,
   formAlert,
 } from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 test("wrong credentials show one generic message", async ({ page }) => {
@@ -29,7 +29,7 @@ test("an admin can log in, sees Team and can log out", async ({ page }) => {
   await loginAsStaff(page, staff);
 
   await expect(page).toHaveURL(/\/intern$/);
-  await expect(page.getByText("Jouw rol: Administrator")).toBeVisible();
+  await expect(page.locator("aside").getByText("Administrator", { exact: true })).toBeVisible();
   const nav = page.getByRole("navigation", { name: "Hoofdmenu" });
   await expect(nav.getByRole("link", { name: "Team" })).toBeVisible();
 
@@ -38,7 +38,7 @@ test("an admin can log in, sees Team and can log out", async ({ page }) => {
   // Logging out is a full page load: going back shows no internal page.
   await page.goBack();
   await expect(page.getByRole("heading", { name: "Welkom, Alex Admin" })).toHaveCount(0);
-  await expect(page.getByText("Jouw rol: Administrator")).toHaveCount(0);
+  await expect(page.locator("aside").getByText("Administrator", { exact: true })).toHaveCount(0);
   await page.goto("/intern");
   await expect(page).toHaveURL(/\/login\?next=%2Fintern$/);
 });
@@ -47,7 +47,7 @@ test("a Medewerker cannot open admin pages", async ({ page }) => {
   const staff = await createStaff("team_member", "Mo Medewerker");
   await loginAsStaff(page, staff);
 
-  await expect(page.getByText("Jouw rol: Medewerker")).toBeVisible();
+  await expect(page.locator("aside").getByText("Medewerker", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Team" })).toHaveCount(0);
 
   await page.goto("/intern/team");

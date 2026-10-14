@@ -38,7 +38,8 @@
   --warning: #fbbf24;
   --info: #93c5fd;
 
-  --chart-1: #c9a54b;
+  /* Chart marks: gold step validated for the dark chart surface (dataviz validator). */
+  --chart-1: #b38b35;
   --chart-2: #f5f5f4;
   --chart-3: #93c5fd;
   --chart-4: #4ade80;

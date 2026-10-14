@@ -987,6 +987,10 @@ export type Database = {
         };
         Returns: string;
       };
+      dashboard_summary: {
+        Args: { p_from: string; p_granularity?: string; p_to: string };
+        Returns: Json;
+      };
       decide_suggestion: {
         Args: { p_accept: boolean; p_note?: string; p_suggestion_id: string };
         Returns: undefined;

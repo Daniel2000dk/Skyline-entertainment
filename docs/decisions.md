@@ -71,3 +71,40 @@ Supabase's `auth`-schema; het gehoste platform kan dat beperken.
 **D15. Lokale testlimieten.** In `supabase/config.toml` staan de Auth-limieten voor inloggen en
 verificaties hoog, omdat alle e2e-logins via één IP (de app-server) lopen. Dit geldt alleen lokaal
 en in CI; gehoste projecten houden de Supabase-standaard, met de eigen limieten van de app erbovenop.
+
+## 2026-10-14 — Fase B
+
+**D16. Eén projectruimte per evenement, aanmaken en bewerken atomair.** `create_event_project`
+maakt project, evenement en standaardtaken in één transactie; `update_event_project` past project
+en evenement samen aan. De evenementnaam volgt de projectnaam (één keer invoeren).
+
+**D17. Geschiedenis en terugzetten via revisies.** Een trigger bewaart bij elke inhoudelijke
+wijziging de vorige waarden (`content_revisions`). Terugzetten loopt via de normale rechten en
+wordt zelf ook een revisie. Geaccepteerde suggesties komen zo ook in de geschiedenis.
+
+**D18. Uitvoerders zonder bewerkrecht.** Een toegewezen medewerker mag alleen status en volgorde
+van de eigen taak wijzigen en de checklist van die taak afvinken (guard-triggers + RLS).
+
+**D19. Agenda afgeleid van bestaande data.** Starttijden van evenementen en deadlines van taken
+komen rechtstreeks uit hun tabellen; alleen teamactiviteiten worden apart opgeslagen. Verplaatsen
+schuift het einde mee. Alle dag- en periodegrenzen in Europe/Amsterdam (zomer/wintertijd-veilig).
+
+**D20. Bestanden: privé, inert en via eigen domein.** Supabase Storage (privé bucket) met policies
+op pad (`projects/<id>/`, `ideas/<id>/`). Type bepaald op inhoud (magic bytes; alleen PNG, JPEG,
+WebP, GIF, PDF), max. 4 MB (Vercel-limiet 4,5 MB). Downloaden via `/intern/bestanden/<id>` na
+sessiecontrole met een eigen, strikte sandbox-CSP; de browser praat nooit met Supabase.
+
+**D21. Glijdend venster voor rate limiting.** Een vast venster liet aan de grens twee keer het
+budget toe. `consume_rate_limit` telt nu het vorige venster naar rato mee.
+
+**D22. Uitloggen als volledige paginalading.** Next.js 16 houdt bezochte pagina's verborgen in de
+DOM (React Activity). Uitloggen is daarom een gewone POST met 303-redirect, plus Clear-Site-Data,
+zodat er na uitloggen niets intern in de browser achterblijft.
+
+**D23. Dashboard: cijfers in de database, één grafiek, geen nepkaarten.** `dashboard_summary`
+rekent alles server-side in één aanroep (met RLS). Kaarten voor deelnames en geld verschijnen pas
+als fase C/D die gegevens heeft. De grafiekkleur (#b38b35) is met de dataviz-validator getoetst
+op het donkere oppervlak; elke grafiek heeft een tabelweergave.
+
+**D24. Kanban met knoppen in plaats van slepen.** Verplaatsen met "Starten/Klaar/Heropenen" werkt
+met toetsenbord en schermlezer en vraagt geen extra drag-and-drop-library.

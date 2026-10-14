@@ -1,8 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
-import { admin, createStaff, formAlert, loginAsStaff, useRandomIp } from "./support/helpers";
+import {
+  admin,
+  createStaff,
+  formAlert,
+  loginAsStaff,
+  assignRandomIp,
+  newClient,
+} from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 async function createProject(
@@ -130,7 +137,7 @@ test("only the owner manages; members with edit rights edit; others only read", 
   await expect(page.getByText("Lid toegevoegd.")).toBeVisible();
 
   // The editor can edit content and tick the checklist, but not manage.
-  const editorContext = await browser.newContext();
+  const editorContext = await newClient(browser);
   const editorPage = await editorContext.newPage();
   await loginAsStaff(editorPage, member);
   await editorPage.goto(`/intern/projecten/${projectId}`);
@@ -147,7 +154,7 @@ test("only the owner manages; members with edit rights edit; others only read", 
   await editorContext.close();
 
   // Other staff can read but not change anything.
-  const readerContext = await browser.newContext();
+  const readerContext = await newClient(browser);
   const readerPage = await readerContext.newPage();
   await loginAsStaff(readerPage, reader);
   await readerPage.goto(`/intern/projecten/${projectId}`);

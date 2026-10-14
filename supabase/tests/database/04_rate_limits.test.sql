@@ -1,5 +1,5 @@
 begin;
-select plan(8);
+select plan(9);
 
 select tests.create_user('admin@skyline.test', 'admin');
 
@@ -13,6 +13,15 @@ select throws_ok(
   '22023', null,
   'invalid arguments are rejected'
 );
+reset role;
+
+-- Sliding window: a full previous window still counts (no double budget at the
+-- boundary). 1000 earlier hits outweigh a limit of 5 for all but the last
+-- seconds of the (daily) window.
+insert into private.rate_limits (key, window_start, hits)
+values ('test:slide', to_timestamp(floor(extract(epoch from now()) / 86400) * 86400) - interval '1 day', 1000);
+select tests.authenticate_as_service_role();
+select ok(not public.consume_rate_limit('test:slide', 5, 86400), 'hits from the previous window still count');
 reset role;
 
 select tests.authenticate_as('admin@skyline.test');
