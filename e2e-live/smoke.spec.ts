@@ -229,6 +229,35 @@ test("every module works on the live site", async ({ page, browser }) => {
     await expect(ownCard).toContainText("Ingetrokken");
   });
 
+  await test.step("GTA map: private image, route and marker", async () => {
+    await page.goto(`/intern/projecten/${projectId}/kaart`);
+    await expect(page.locator(".leaflet-image-layer")).toBeVisible();
+    await expect(page.getByText("nog geen kaartafbeelding")).toHaveCount(0);
+    const image = await page.request.get("/intern/kaart/afbeelding");
+    expect(image.status()).toBe(200);
+    expect(image.headers()["content-type"]).toMatch(/^image\//);
+
+    await page.getByLabel("Naam van de route").fill(`Route ${runId}`);
+    await page.getByRole("button", { name: "Route toevoegen" }).click();
+    await expect(page.getByRole("heading", { name: "Route bewerken" })).toBeVisible();
+    const box = (await page.locator(".leaflet-container").boundingBox())!;
+    for (const [dx, dy] of [
+      [-40, -60],
+      [0, 0],
+      [40, 60],
+    ] as const) {
+      await page.mouse.click(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy);
+    }
+    await page.getByRole("button", { name: "Route opslaan" }).click();
+    await expect(page.getByRole("button", { name: `Route ${runId}, 3 punten` })).toBeVisible();
+
+    await page.getByRole("button", { name: "Marker plaatsen" }).click();
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2 + 100);
+    await page.getByLabel("Naam van de marker").fill("Parkeren");
+    await page.getByRole("button", { name: "Marker opslaan" }).click();
+    await expect(page.getByRole("button", { name: "Marker Parkeren verwijderen" })).toBeVisible();
+  });
+
   await test.step("files (private storage) and history", async () => {
     await page.goto(`/intern/projecten/${projectId}/bestanden`);
     await page

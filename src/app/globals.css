@@ -130,6 +130,81 @@
   }
 }
 
+/* GTA map (Leaflet): markers and overlays drawn with CSS, no image assets. */
+.map-canvas.leaflet-container {
+  background: #101820;
+  font-family: inherit;
+}
+.map-drawing .leaflet-container {
+  cursor: crosshair;
+}
+.map-icon {
+  background: none;
+  border: 0;
+}
+.map-dot {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0a0a0a;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.7);
+  color: #0a0a0a;
+  font-size: 10px;
+  font-weight: 800;
+}
+.map-dot--start {
+  background: #4ade80;
+}
+.map-dot--finish {
+  background: #ffffff;
+}
+.map-dot--checkpoint {
+  border-radius: 3px;
+  transform: rotate(45deg) scale(0.8);
+}
+.map-pin {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #0a0a0a;
+  border-radius: 50% 50% 50% 0;
+  background: var(--primary);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.7);
+  transform: rotate(-45deg);
+}
+.map-pin--pending {
+  background: #ffffff;
+}
+.leaflet-tooltip.map-tooltip,
+.map-canvas .leaflet-popup-content-wrapper,
+.map-canvas .leaflet-popup-tip {
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--foreground);
+}
+.map-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.map-popup p {
+  margin: 0;
+  white-space: pre-line;
+}
+.map-popup button {
+  border-radius: 0.5rem;
+  background: var(--secondary);
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+}
+.map-popup button:hover {
+  background: var(--accent);
+  color: var(--primary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

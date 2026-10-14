@@ -30,6 +30,8 @@ describe("describeActivity", () => {
       },
       "Suggestie geaccepteerd",
     ],
+    [{ action: "map_routes.update", details: { changed: ["points"] } }, "Route bijgewerkt"],
+    [{ action: "map_markers.insert", details: null }, "Marker geplaatst"],
     [{ action: "something.else", details: null }, "Wijziging"],
   ])("describes %j", (entry, expected) => {
     expect(describeActivity(entry)).toBe(expected);

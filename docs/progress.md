@@ -74,10 +74,15 @@ _Laatst bijgewerkt: 2026-10-14 — fase A en B live in productie_
   merkpijlers; login met groot logo; intern rustig met goud alleen voor knoppen, actieve navigatie
   en focus. Gecontroleerd met screenshots op desktop (1440 px) en mobiel (Pixel 7).
 
-## In uitvoering
+## Fase C (evenementen) — in uitvoering
 
-- Fase C: GTA-kaart en route-editor. De kaartafbeelding van de eigenaar staat lokaal in
-  `private/maps/` (door git genegeerd; niet publiceren in de publieke repo).
+- ✅ **GTA-kaart en route-editor** (slice 1, nog niet in productie): tabblad **Kaart** per
+  project. Zoomen en verschuiven; meerdere routes per evenement in vijf kleuren; punten zetten door
+  op de kaart te klikken, verslepen, verwijderen, checkpoints, start/finish of rondgang; markers met
+  notitie. Alle medewerkers kijken mee; alleen eigenaar, editors en admins tekenen. Kaartafbeelding
+  privé (alleen medewerkers), opgeslagen in de database met auditlog.
+- Volgende: publieke evenementpagina's, inschrijven met alleen de RP-naam, Turnstile, beheer van
+  inschrijvingen.
 
 ## Openstaande punten
 
@@ -87,17 +92,21 @@ _Laatst bijgewerkt: 2026-10-14 — fase A en B live in productie_
 - **Kaartresolutie**: de aangeleverde kaart is 533 × 800 pixels; inzoomen wordt daardoor snel
   wazig. Een grotere versie van dezelfde kaart kan later zonder routes te verliezen worden
   vervangen (routes worden relatief aan de afbeelding opgeslagen).
+- **npm audit**: 9 meldingen (hoog) in ontwikkeltools (`eslint-config-next`, `shadcn`-CLI via
+  `braces`/`micromatch`); niet in de site zelf. Oplossen zodra er een compatibele update is.
+- **Teampagina zonder paginering**: prima voor een normaal team; lokaal met honderden
+  testaccounts werd hij traag (e2e-test faalde tot de lokale database werd geleegd).
 
 ## Testresultaten (2026-10-14)
 
-| Suite                        | Resultaat        | Dekt onder meer                                                                       |
-| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------- |
-| Vitest (unit)                | 108/108 geslaagd | Validatie, datum/tijdzone, agenda- en periodelogica, bestandsherkenning, labels       |
-| pgTAP (database)             | 205/205 geslaagd | RLS per rol, cross-project, taken/uitvoerders, suggesties, ideeën, opslag, dashboard  |
-| Playwright (e2e)             | 59/59 geslaagd   | Auth, MFA, rollen, projecten, taken, discussies, ideeën, bestanden, agenda, dashboard |
-| Livetest productie           | 1/1 geslaagd     | Headers, RLS via publieke API, login, alle modules, privé bestanden, 2FA, uitloggen   |
-| Lint, types, Prettier, build | geslaagd         | Ook op GitHub Actions                                                                 |
-| Supabase advisors            | geen meldingen   |                                                                                       |
+| Suite                        | Resultaat        | Dekt onder meer                                                                     |
+| ---------------------------- | ---------------- | ----------------------------------------------------------------------------------- |
+| Vitest (unit)                | 119/119 geslaagd | Validatie, datum/tijdzone, agenda, periodes, bestanden, kaartcoördinaten, labels    |
+| pgTAP (database)             | 222/222 geslaagd | RLS per rol, cross-project, taken, suggesties, ideeën, opslag, dashboard, kaart     |
+| Playwright (e2e)             | 62/62 geslaagd   | Auth, MFA, rollen, projecten, taken, discussies, ideeën, bestanden, agenda, kaart   |
+| Livetest productie           | 1/1 geslaagd     | Headers, RLS via publieke API, login, alle modules, privé bestanden, 2FA, uitloggen |
+| Lint, types, Prettier, build | geslaagd         | Ook op GitHub Actions                                                               |
+| Supabase advisors            | geen meldingen   |                                                                                     |
 
 ## Acties voor jou
 

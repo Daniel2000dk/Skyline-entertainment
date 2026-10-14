@@ -53,6 +53,18 @@ export function describeActivity({ action, details }: ActivityEntry): string {
       return "Suggestie ingediend";
     case "suggestions.update":
       return (status && SUGGESTION_RESULT[status]) || "Suggestie bijgewerkt";
+    case "map_routes.insert":
+      return "Route op de kaart gezet";
+    case "map_routes.update":
+      return "Route bijgewerkt";
+    case "map_routes.delete":
+      return "Route verwijderd";
+    case "map_markers.insert":
+      return "Marker geplaatst";
+    case "map_markers.update":
+      return "Marker bijgewerkt";
+    case "map_markers.delete":
+      return "Marker verwijderd";
     case "team_activities.insert":
       return "Teamactiviteit ingepland";
     default:

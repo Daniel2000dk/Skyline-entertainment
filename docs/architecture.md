@@ -64,7 +64,7 @@ GTA-dollars (`bigint`), nooit echt geld.
 | ✅ B | `team_activities` + view `calendar_items`      | Agenda als view over events/taken/deadlines: niets dubbel invoeren      |
 | ✅ B | `ideas`, `idea_votes`                          | Ideeënbord; omzetten naar project behoudt discussies                    |
 | ✅ B | Storage-bucket `project-files` (privé)         | Bijlagen en idee-afbeeldingen                                           |
-| ⏳ C | `map_routes`, `route_points`, `route_versions` | Routes per evenement, GTA-wereldcoördinaten, versies                    |
+| ✅ C | `map_routes`, `map_markers`, bucket `maps`     | Routes/markers per project, relatief aan de kaartafbeelding (0–1)       |
 | ⏳ C | `participants`, `registrations`                | Inschrijving op genormaliseerde RP-naam; unieke actieve inschrijving    |
 | ⏳ C | `register_for_event()`                         | Atomaire inschrijving: capaciteit + uniciteit in één transactie         |
 | ⏳ C | `security_signals`                             | Minimale, kortlevende signalen voor verdachte inschrijvingen            |
@@ -91,9 +91,9 @@ Later: `react-hook-form` (complexe formulieren, fase B), `recharts` (dashboard, 
 
 ## 6. Obstakels en risico's
 
-1. **GTA V-kaartmateriaal (fase C).** De kaartafbeeldingen zijn auteursrechtelijk beschermd
-   (Rockstar). Community-tilesets hebben vaak geen duidelijke licentie. Vóór fase C onderzoek ik
-   opties en leg ik een keuze aan je voor; ik gebruik niets zonder duidelijke toestemming.
+1. **GTA V-kaartmateriaal.** De kaart is auteursrechtelijk beschermd (Rockstar). De eigenaar heeft
+   zelf een kaartafbeelding aangeleverd; die staat alleen in privé-opslag, is alleen zichtbaar voor
+   ingelogde medewerkers en zit niet in de publieke repo (zie D29).
 2. **Vercel Hobby is alleen voor niet-commercieel gebruik.** Geen echte betalingen, advertenties of
    betaalde ontwikkeling via de site. In-game GTA-geld is geen echte betaling. Donaties vragen mag.
 3. **Supabase Free pauzeert een project na 1 week inactiviteit.** Bij regelmatig gebruik geen
