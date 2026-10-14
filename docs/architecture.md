@@ -55,15 +55,15 @@ GTA-dollars (`bigint`), nooit echt geld.
 | ✅ A | `events`                                       | Publieke kant van een project (slug, tijden, capaciteit, inschrijfgeld) |
 | ✅ A | `activity_log`                                 | Append-only audit, gevuld door triggers                                 |
 | ✅ A | `private.rate_limits` + `consume_rate_limit()` | Duurzame rate limiting (gehashte sleutels)                              |
-| ⏳ B | `event_types`, `task_templates`                | Motorrace, rally, jetski … met standaardtaken                           |
-| ⏳ B | `tasks` (+ prioriteit, status, kanban-positie) | Taken met verantwoordelijke en deadline                                 |
-| ⏳ B | `project_checklist_items`, `runbook_items`     | Checklist en draaiboek                                                  |
-| ⏳ B | `threads`, `comments`                          | Discussies bij project, taak of idee                                    |
-| ⏳ B | `suggestions`                                  | Voorstel zonder directe wijziging; eigenaar accepteert/wijst af         |
-| ⏳ B | `content_revisions`                            | Versies van belangrijke inhoud, terugdraaien mogelijk                   |
-| ⏳ B | `team_activities` + view `calendar_items`      | Agenda als view over events/taken/deadlines: niets dubbel invoeren      |
-| ⏳ B | `ideas`, `idea_votes`                          | Ideeënbord; omzetten naar project behoudt discussies                    |
-| ⏳ B | Storage-bucket `project-files` (privé)         | Bijlagen en idee-afbeeldingen                                           |
+| ✅ B | `event_types`, `task_templates`                | Motorrace, rally, jetski … met standaardtaken                           |
+| ✅ B | `tasks` (+ prioriteit, status, kanban-positie) | Taken met verantwoordelijke en deadline                                 |
+| ✅ B | `project_checklist_items`, `runbook_items`     | Checklist en draaiboek                                                  |
+| ✅ B | `threads`, `comments`                          | Discussies bij project, taak of idee                                    |
+| ✅ B | `suggestions`                                  | Voorstel zonder directe wijziging; eigenaar accepteert/wijst af         |
+| ✅ B | `content_revisions`                            | Versies van belangrijke inhoud, terugdraaien mogelijk                   |
+| ✅ B | `team_activities` + view `calendar_items`      | Agenda als view over events/taken/deadlines: niets dubbel invoeren      |
+| ✅ B | `ideas`, `idea_votes`                          | Ideeënbord; omzetten naar project behoudt discussies                    |
+| ✅ B | Storage-bucket `project-files` (privé)         | Bijlagen en idee-afbeeldingen                                           |
 | ⏳ C | `map_routes`, `route_points`, `route_versions` | Routes per evenement, GTA-wereldcoördinaten, versies                    |
 | ⏳ C | `participants`, `registrations`                | Inschrijving op genormaliseerde RP-naam; unieke actieve inschrijving    |
 | ⏳ C | `register_for_event()`                         | Atomaire inschrijving: capaciteit + uniciteit in één transactie         |

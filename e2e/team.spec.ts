@@ -5,12 +5,13 @@ import {
   login,
   loginAsStaff,
   uniqueEmail,
-  useRandomIp,
+  assignRandomIp,
   formAlert,
+  newClient,
 } from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 test("an admin invites a new Event Manager who sets a password via the link", async ({
@@ -32,7 +33,7 @@ test("an admin invites a new Event Manager who sets a password via the link", as
   expect(link).toMatch(/^http:\/\/localhost:3000\/bevestigen\?token_hash=[\w-]+&type=invite$/);
 
   // The invitee uses a separate browser (no shared cookies).
-  const inviteeContext = await browser.newContext();
+  const inviteeContext = await newClient(browser);
   const invitee = await inviteeContext.newPage();
   await invitee.goto(link);
   await expect(invitee.getByRole("heading", { name: "Welkom bij Skyline" })).toBeVisible();
@@ -49,10 +50,10 @@ test("an admin invites a new Event Manager who sets a password via the link", as
   await invitee.getByLabel("Herhaal wachtwoord").fill(password);
   await invitee.getByRole("button", { name: "Wachtwoord opslaan" }).click();
   await expect(invitee.getByRole("heading", { name: "Welkom, Noah Nieuw" })).toBeVisible();
-  await expect(invitee.getByText("Jouw rol: Event Manager")).toBeVisible();
+  await expect(invitee.locator("aside").getByText("Event Manager", { exact: true })).toBeVisible();
 
   // The link is single-use.
-  const replayContext = await browser.newContext();
+  const replayContext = await newClient(browser);
   const replay = await replayContext.newPage();
   await replay.goto(link);
   await replay.getByRole("button", { name: "Doorgaan" }).click();
@@ -115,7 +116,7 @@ test("an admin can create a new login link for a member", async ({ page, browser
     .inputValue();
   expect(link).toContain("type=recovery");
 
-  const memberContext = await browser.newContext();
+  const memberContext = await newClient(browser);
   const memberPage = await memberContext.newPage();
   await memberPage.goto(link);
   await expect(memberPage.getByRole("heading", { name: "Wachtwoord herstellen" })).toBeVisible();

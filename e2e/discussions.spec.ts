@@ -1,9 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
-import { admin, createStaff, loginAsStaff, useRandomIp, type TestUser } from "./support/helpers";
+import {
+  admin,
+  createStaff,
+  loginAsStaff,
+  assignRandomIp,
+  type TestUser,
+  newClient,
+} from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 async function createProject(owner: TestUser) {
@@ -37,7 +44,7 @@ test("staff discuss a project in threads", async ({ page, browser }) => {
   await page.getByRole("button", { name: "Opslaan" }).click();
   await expect(thread).toContainText("bewerkt");
 
-  const ownerContext = await browser.newContext();
+  const ownerContext = await newClient(browser);
   const ownerPage = await ownerContext.newPage();
   await loginAsStaff(ownerPage, owner);
   await ownerPage.goto(`/intern/projecten/${project.id}/discussie`);
@@ -55,7 +62,7 @@ test("staff discuss a project in threads", async ({ page, browser }) => {
   ).toHaveCount(0);
   await ownerContext.close();
 
-  const adminContext = await browser.newContext();
+  const adminContext = await newClient(browser);
   const adminPage = await adminContext.newPage();
   await loginAsStaff(adminPage, boss);
   await adminPage.goto(`/intern/projecten/${project.id}/discussie`);
@@ -81,7 +88,7 @@ test("a suggestion is accepted by the owner and applied", async ({ page, browser
   // The author cannot decide on their own suggestion.
   await expect(page.getByRole("button", { name: "Accepteren" })).toHaveCount(0);
 
-  const ownerContext = await browser.newContext();
+  const ownerContext = await newClient(browser);
   const ownerPage = await ownerContext.newPage();
   await loginAsStaff(ownerPage, owner);
   await ownerPage.goto(`/intern/projecten/${project.id}/discussie`);
@@ -122,7 +129,7 @@ test("suggestions can be rejected or withdrawn", async ({ page, browser }) => {
   await general.getByRole("button", { name: "Intrekken" }).click();
   await expect(general).toContainText("Ingetrokken");
 
-  const ownerContext = await browser.newContext();
+  const ownerContext = await newClient(browser);
   const ownerPage = await ownerContext.newPage();
   await loginAsStaff(ownerPage, owner);
   await ownerPage.goto(`/intern/projecten/${project.id}/discussie`);

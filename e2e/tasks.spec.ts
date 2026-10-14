@@ -1,9 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
-import { admin, createStaff, loginAsStaff, useRandomIp, type TestUser } from "./support/helpers";
+import {
+  admin,
+  createStaff,
+  loginAsStaff,
+  assignRandomIp,
+  type TestUser,
+  newClient,
+} from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 async function projectWithMembers(
@@ -57,7 +64,7 @@ test("tasks flow from editor to assignee across the board", async ({ page, brows
   await expect(page.getByRole("checkbox", { name: "Gouden beker" })).toBeVisible();
 
   // The assignee (no edit rights) can progress the task and tick its checklist.
-  const assigneeContext = await browser.newContext();
+  const assigneeContext = await newClient(browser);
   const assigneePage = await assigneeContext.newPage();
   await loginAsStaff(assigneePage, assignee);
   await assigneePage

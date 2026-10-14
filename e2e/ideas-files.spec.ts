@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
-import { admin, createStaff, loginAsStaff, useRandomIp } from "./support/helpers";
+import { admin, createStaff, loginAsStaff, assignRandomIp, newClient } from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 // 1×1 transparent PNG and a minimal PDF.
@@ -55,7 +55,7 @@ test("an idea is shared, voted on, approved and turned into a project", async ({
   await expect(page.getByRole("article", { name: "Bericht van Iris Idee" })).toBeVisible();
   const ideaUrl = page.url();
 
-  const managerContext = await browser.newContext();
+  const managerContext = await newClient(browser);
   const managerPage = await managerContext.newPage();
   await loginAsStaff(managerPage, manager);
   await managerPage.goto(ideaUrl);
@@ -119,7 +119,7 @@ test("uploads are checked by content and only for permitted staff", async ({ pag
   expect(download.headers()["content-disposition"]).toContain("attachment");
 
   // Without a session the file is not served.
-  const anonymous = await browser.newContext();
+  const anonymous = await newClient(browser);
   const anonymousResponse = await anonymous.request.get(`http://localhost:3000${href}`, {
     maxRedirects: 0,
   });
@@ -127,7 +127,7 @@ test("uploads are checked by content and only for permitted staff", async ({ pag
   await anonymous.close();
 
   // Staff without edit rights can see but not add or remove files.
-  const readerContext = await browser.newContext();
+  const readerContext = await newClient(browser);
   const readerPage = await readerContext.newPage();
   await loginAsStaff(readerPage, reader);
   await readerPage.goto(`/intern/projecten/${project!.id}/bestanden`);

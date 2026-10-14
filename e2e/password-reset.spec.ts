@@ -4,12 +4,13 @@ import {
   latestResetLink,
   login,
   uniqueEmail,
-  useRandomIp,
+  assignRandomIp,
   formAlert,
+  newClient,
 } from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 const SENT =
@@ -26,7 +27,7 @@ test("staff can reset a forgotten password via email", async ({ page, browser })
   await expect(page.getByText(SENT)).toBeVisible();
 
   const link = await latestResetLink(staff.email);
-  const resetContext = await browser.newContext();
+  const resetContext = await newClient(browser);
   const resetPage = await resetContext.newPage();
   await resetPage.goto(link);
   await resetPage.getByRole("button", { name: "Doorgaan" }).click();

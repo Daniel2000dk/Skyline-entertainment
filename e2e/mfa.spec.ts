@@ -7,11 +7,12 @@ import {
   loginAsStaff,
   nextTotp,
   totp,
-  useRandomIp,
+  assignRandomIp,
+  newClient,
 } from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 const CODE_LABEL = "Code uit je authenticator-app";
@@ -81,7 +82,7 @@ test("an admin can reset a member's MFA after a lost phone", async ({ page, brow
   await card.getByRole("button", { name: "Ja, resetten" }).click();
   await expect(card.getByText("2FA aan")).toHaveCount(0);
 
-  const memberContext = await browser.newContext();
+  const memberContext = await newClient(browser);
   const memberPage = await memberContext.newPage();
   await login(memberPage, member.email, member.password);
   await expect(memberPage.getByRole("heading", { name: `Welkom, ${member.name}` })).toBeVisible();

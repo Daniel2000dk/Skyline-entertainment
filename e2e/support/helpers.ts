@@ -1,5 +1,5 @@
 import { createHmac, randomInt, randomUUID } from "node:crypto";
-import { expect, type BrowserContext, type Page } from "@playwright/test";
+import { expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 
 type StaffRole = "admin" | "organizer" | "team_member";
@@ -26,10 +26,17 @@ export function strongPassword(): string {
 }
 
 /** Each test gets its own "client IP" so rate-limit buckets do not collide. */
-export async function useRandomIp(context: BrowserContext) {
+export async function assignRandomIp(context: BrowserContext) {
   await context.setExtraHTTPHeaders({
     "x-forwarded-for": `10.${randomInt(256)}.${randomInt(256)}.${randomInt(1, 255)}`,
   });
+}
+
+/** A separate browser (no shared cookies) that looks like its own client. */
+export async function newClient(browser: Browser): Promise<BrowserContext> {
+  const context = await browser.newContext();
+  await assignRandomIp(context);
+  return context;
 }
 
 export type TestUser = { id: string; email: string; password: string; name: string };
@@ -71,6 +78,9 @@ export function formAlert(page: Page) {
 }
 
 export async function login(page: Page, email: string, password: string) {
+  // Every test login looks like a different client, so the per-IP limiter
+  // (which also counts the previous window) never mixes up parallel tests.
+  await assignRandomIp(page.context());
   await page.goto("/login");
   await page.getByLabel("E-mailadres").fill(email);
   await page.getByLabel("Wachtwoord").fill(password);

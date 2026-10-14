@@ -1,9 +1,16 @@
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
-import { admin, createStaff, loginAsStaff, useRandomIp, type TestUser } from "./support/helpers";
+import {
+  admin,
+  createStaff,
+  loginAsStaff,
+  assignRandomIp,
+  type TestUser,
+  newClient,
+} from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 async function plannedProject(owner: TestUser, title: string, startsAt: string, endsAt: string) {
@@ -28,16 +35,18 @@ async function plannedProject(owner: TestUser, title: string, startsAt: string, 
 test("the calendar combines events, deadlines and team activities", async ({ page }) => {
   const owner = await createStaff("organizer", "Petra Planner");
   const title = `Kerstrace ${Date.now()}`;
+  // A random far-future year keeps the month view free of other local data.
+  const year = randomInt(2100, 9000);
   const project = await plannedProject(
     owner,
     title,
-    "2027-01-15T19:00:00Z",
-    "2027-01-15T21:00:00Z",
+    `${year}-01-15T19:00:00Z`,
+    `${year}-01-15T21:00:00Z`,
   );
   await admin.from("tasks").insert({
     project_id: project.id,
     title: `Prijzen kopen ${title}`,
-    due_at: "2027-01-12T18:00:00Z",
+    due_at: `${year}-01-12T18:00:00Z`,
     assignee_id: owner.id,
   });
 
@@ -46,8 +55,8 @@ test("the calendar combines events, deadlines and team activities", async ({ pag
     .getByRole("navigation", { name: "Hoofdmenu" })
     .getByRole("link", { name: "Planning" })
     .click();
-  await page.goto("/intern/planning?weergave=maand&datum=2027-01-01");
-  await expect(page.getByRole("heading", { name: "januari 2027" })).toBeVisible();
+  await page.goto(`/intern/planning?weergave=maand&datum=${year}-01-01`);
+  await expect(page.getByRole("heading", { name: `januari ${year}` })).toBeVisible();
   await expect(page.getByRole("link", { name: new RegExp(`20:00 ${title}`) })).toBeVisible();
   await expect(
     page.getByRole("link", { name: new RegExp(`19:00 Prijzen kopen ${title}`) }),
@@ -55,7 +64,7 @@ test("the calendar combines events, deadlines and team activities", async ({ pag
 
   await page.getByText("Teamactiviteit inplannen").click();
   await page.getByLabel("Titel").fill(`Teamoverleg ${title}`);
-  await page.getByLabel("Start").fill("2027-01-20T20:00");
+  await page.getByLabel("Start").fill(`${year}-01-20T20:00`);
   await page.getByLabel("Locatie").fill("Clubhuis");
   await page.getByRole("button", { name: "Activiteit inplannen" }).click();
   await expect(page.getByText("Activiteit ingepland.")).toBeVisible();
@@ -64,11 +73,13 @@ test("the calendar combines events, deadlines and team activities", async ({ pag
   ).toBeVisible();
 
   // Week view and day view show the same data.
-  await page.goto("/intern/planning?weergave=week&datum=2027-01-15");
+  await page.goto(`/intern/planning?weergave=week&datum=${year}-01-15`);
   await expect(page.getByRole("link", { name: new RegExp(`20:00 ${title}`) })).toBeVisible();
-  await page.goto("/intern/planning?weergave=dag&datum=2027-01-15");
-  await expect(page.getByRole("heading", { name: "vrijdag 15 januari 2027" })).toBeVisible();
-  await expect(page.getByText("In voorbereiding · Legion Square")).toBeVisible();
+  await page.goto(`/intern/planning?weergave=dag&datum=${year}-01-15`);
+  await expect(page.getByRole("heading", { name: new RegExp(`15 januari ${year}`) })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: new RegExp(`20:00 ${title}`) }).locator(".."),
+  ).toContainText("In voorbereiding · Legion Square");
 });
 
 test("an editor moves an event and its end time moves along", async ({ page }) => {
@@ -110,7 +121,7 @@ test("only the creator or an organizer changes a team activity", async ({ page, 
     .select("id, title")
     .single();
 
-  const otherContext = await browser.newContext();
+  const otherContext = await newClient(browser);
   const otherPage = await otherContext.newPage();
   await loginAsStaff(otherPage, other);
   await otherPage.goto(`/intern/planning/activiteiten/${activity!.id}`);

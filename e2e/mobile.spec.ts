@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createStaff, login, useRandomIp } from "./support/helpers";
+import { createStaff, login, assignRandomIp } from "./support/helpers";
 
 test.beforeEach(async ({ context }) => {
-  await useRandomIp(context);
+  await assignRandomIp(context);
 });
 
 async function expectNoHorizontalScroll(page: Page) {

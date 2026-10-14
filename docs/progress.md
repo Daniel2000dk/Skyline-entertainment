@@ -1,6 +1,6 @@
 # Voortgang
 
-_Laatst bijgewerkt: 2026-10-14 — fase B in uitvoering_
+_Laatst bijgewerkt: 2026-10-14 — fase B afgerond_
 
 ## Afgerond
 
@@ -29,7 +29,7 @@ _Laatst bijgewerkt: 2026-10-14 — fase B in uitvoering_
 - MFA (TOTP via authenticator-app): instellen en uitzetten via **Account**, code-stap bij het
   inloggen, afgedwongen in de database (`aal2`), admin-reset bij verloren telefoon, audit-log.
 
-## In uitvoering — fase B (projectmanagement)
+## Afgerond — fase B (projectmanagement)
 
 - ✅ **Projecten** (slice 1): evenementtypen met standaardtaken, project aanmaken vanuit een
   template, details bewerken (project + evenement in één keer), status, team en rechten, checklist,
@@ -51,33 +51,46 @@ _Laatst bijgewerkt: 2026-10-14 — fase B in uitvoering_
   evenementen, deadlines van taken en teamactiviteiten — afgeleid van bestaande gegevens, niets
   dubbel invoeren. Evenementen verplaatsen vanuit de agenda (duur schuift mee); teamactiviteiten met
   verantwoordelijke.
-- ⏳ Dashboard.
+- ✅ **Dashboard** (slice 6): kerncijfers (gehouden en komende evenementen, open en afgeronde
+  taken, open ideeën), grafiek "Evenementen per dag/maand" met tabelweergave, komende evenementen
+  en recente projectactiviteit; filters week/maand/kwartaal/jaar/eigen periode. Deelnames en
+  geldbedragen volgen in fase C/D.
+- 🔒 Rate limiting met glijdend venster (geen dubbel budget op venstergrenzen).
+
+## In uitvoering
+
+- Fase C voorbereiden: GTA-kaartmateriaal (licentie-onderzoek), publieke evenementpagina's,
+  inschrijven met Turnstile.
 
 ## Openstaande punten
 
-- **Vercel en Supabase koppelen** (alleen jij kunt dit): zie "Acties voor jou".
+- **Productie nog niet bijgewerkt**: Supabase-project `skyline-entertainment` en Vercel zijn
+  gekoppeld en de productieconfig staat klaar (`[remotes.production]`), maar migraties,
+  auth-instellingen en Vercel-variabelen worden pas toegepast na jouw toestemming. Tot die tijd
+  staat zelfregistratie in het Supabase-project nog open (zonder tabellen; geen risico voor data).
 - **E-mail voor zelfbediening "wachtwoord vergeten"**: werkt online pas met een eigen SMTP-dienst.
   Tot die tijd maakt een Administrator een inloglink via Team.
 - **GTA-kaartmateriaal (fase C)**: licentie-onderzoek nodig voordat er tiles worden gebruikt.
 
-## Testresultaten (lokaal, 2026-10-13)
+## Testresultaten (lokaal, 2026-10-14)
 
-| Suite                        | Resultaat        | Dekt onder meer                                                                                                    |
-| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Vitest (unit)                | 43/43 geslaagd   | Open-redirect-bescherming, validatie, wachtwoordregels, digest, sessieversheid                                     |
-| pgTAP (database)             | 102/102 geslaagd | anon, buitenstaander, gedeactiveerd, elke rol, rol-escalatie, cross-project, audit, MFA (aal2), schema-invarianten |
-| Playwright (e2e)             | 39/39 geslaagd   | Directe API-aanroepen geweigerd, login, rollen, uitnodigen, herstel, throttling, MFA, mobiel                       |
-| Lint, types, Prettier, build | geslaagd         | Ook op GitHub Actions (CI groen op PR #1)                                                                          |
-| Supabase advisors            | geen meldingen   | Beveiliging en performance van het schema                                                                          |
+| Suite                        | Resultaat        | Dekt onder meer                                                                       |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| Vitest (unit)                | 108/108 geslaagd | Validatie, datum/tijdzone, agenda- en periodelogica, bestandsherkenning, labels       |
+| pgTAP (database)             | 205/205 geslaagd | RLS per rol, cross-project, taken/uitvoerders, suggesties, ideeën, opslag, dashboard  |
+| Playwright (e2e)             | 59/59 geslaagd   | Auth, MFA, rollen, projecten, taken, discussies, ideeën, bestanden, agenda, dashboard |
+| Lint, types, Prettier, build | geslaagd         | Ook op GitHub Actions                                                                 |
+| Supabase advisors            | geen meldingen   |                                                                                       |
 
 ## Acties voor jou
 
-1. **Supabase-project voor previews** aanmaken en instellen: [setup.md §1](setup.md#1-supabase-project-voor-previews).
-2. **Vercel-project** importeren en de vier Preview-variabelen zetten: [setup.md §2](setup.md#2-vercel-project).
-3. **Eerste Administrator** op de preview aanmaken: [setup.md §3](setup.md#3-eerste-administrator-op-de-preview).
-4. Pull request reviewen en mergen wanneer je tevreden bent.
+1. **Toestemming voor productie** (staat nog open): migraties toepassen op je Supabase-project,
+   auth-instellingen pushen, de Vercel-variabelen zetten, een nieuwe productie-deploy en je
+   Administrator-account. Zie het overzicht in het chatbericht.
+2. **Fase C: Cloudflare Turnstile** (gratis): Cloudflare-account en een Turnstile-widget aanmaken.
+   Ik geef de exacte stappen zodra fase C begint.
 
 ## Volgende stap
 
-Na jouw koppeling van Supabase en Vercel: de online preview controleren en PR #1 mergen. Daarna
-fase B (dashboard, agenda, projecten, taken, discussies, suggesties, ideeënbord).
+Fase C: GTA-kaart (na licentiekeuze), route-editor, publieke evenementpagina's, inschrijven met
+alleen de RP-naam, Turnstile, rate limiting en beheer van inschrijvingen.
