@@ -22,76 +22,66 @@ Lokale e-mails (wachtwoordherstel) zie je in Mailpit: http://127.0.0.1:54324.
 | `npm run db:reset` | Lokale database leegmaken en migraties opnieuw toepassen |
 | `npm run db:types` | TypeScript-types opnieuw genereren na een migratie       |
 
-## Online omgevingen (eenmalig, door de eigenaar)
+## Online omgeving
 
-Deel nooit sleutels in de chat. Zet ze alleen in de dashboards van Supabase en Vercel, of lokaal in
-een bestand dat git negeert.
+Deel nooit sleutels in de chat. Ze staan alleen in de dashboards/CLI's van Supabase en Vercel, of
+lokaal in een bestand dat git negeert (bij voorkeur buiten de repo).
 
-### 1. Supabase-project voor previews
+### Opzet
 
-1. Ga naar [supabase.com/dashboard](https://supabase.com/dashboard) → **New project**.
-   Naam `skyline-preview`, regio **Central EU (Frankfurt)**, plan **Free**. Bewaar het
-   databasewachtwoord in je wachtwoordmanager.
-2. **Authentication → Sign In / Providers**
-   - _Allow new users to sign up_: **uit** (alleen uitnodigingen).
-   - _Email_: **aan**.
-3. **Authentication → Providers → Email** (of _Auth settings_, afhankelijk van de dashboardversie)
-   - _Minimum password length_: **12**, _Password requirements_: **Letters and digits**.
-   - _Secure password change_: **aan**.
-4. **Authentication → URL Configuration**
-   - _Site URL_: de preview-URL van Vercel (stap 2), bijv. `https://skyline-entertainment-git-…vercel.app`.
-   - _Redirect URLs_: `https://*-daniel2000dk.vercel.app/**` (pas de teamnaam aan aan je Vercel-URL's).
-5. **Authentication → Emails → Templates → Reset password**: onderwerp en inhoud uit
-   [`supabase/templates/recovery.html`](../supabase/templates/recovery.html) plakken.
-6. **Authentication → Multi-Factor**: _TOTP (App Authenticator)_ **aan** (gratis). Laat telefoon-MFA
-   uit (betaald).
-7. Database-migraties toepassen (vanuit deze map, in een terminal):
+- **Supabase**: één project, `skyline-entertainment` (ref `rjgizkedtrmaezvnlbis`, Free). Supabase
+  Free staat twee actieve projecten toe en het andere is DPPS (nooit aanraken), dus dit is de enige
+  online database en die is **productie**. De productie-instellingen staan in
+  [`supabase/config.toml`](../supabase/config.toml) onder `[remotes.production]`.
+- **Vercel**: project `skylineentertainment` (Hobby, niet-commercieel), productie op
+  <https://skylineentertainment.vercel.app>. Previews van pull requests hebben bewust géén
+  backend-variabelen: publieke pagina's werken, interne pagina's geven 503.
+- **Productie-deploys** gaan nooit automatisch (`vercel.json` zet Git-deploys vanaf `main` uit).
+
+### Release naar productie (alleen na akkoord van de eigenaar)
+
+Vereist: ingelogd met `npx supabase login` en `npx vercel login` (doet de eigenaar zelf).
+
+1. **Migraties**: `npx supabase db push --dry-run`, controleren, dan `npx supabase db push`.
+2. **Auth-instellingen**: `npx supabase config diff --project-ref rjgizkedtrmaezvnlbis`. Supabase
+   Free met de standaard e-mailprovider weigert eigen e-mailtemplates (en dan de hele auth-update).
+   Push daarom een kopie van de config zónder `[auth.email.template.recovery]`:
    ```bash
-   npx supabase login                         # opent je browser
-   npx supabase link --project-ref <ref>      # <ref> staat in de project-URL; vraagt het DB-wachtwoord
-   npx supabase db push                       # past supabase/migrations/* toe
+   mkdir -p /tmp/prodcfg/supabase
+   awk 'BEGIN{s=0} /^[auth.email.template.recovery]/{s=1;next} /^[/{s=0} !s'      supabase/config.toml > /tmp/prodcfg/supabase/config.toml
+   npx supabase config push --workdir /tmp/prodcfg --project-ref rjgizkedtrmaezvnlbis
+   ```
+   Daarna toont `config diff` alleen nog het onderwerp van dat template als verschil (verwacht).
+3. **Vercel-variabelen** (alleen _Production_, één keer of bij rotatie): `SUPABASE_URL`,
+   `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `RATE_LIMIT_SECRET` (willekeurig, min. 32
+   tekens) en `SITE_URL=https://skylineentertainment.vercel.app`. Sleutels gaan CLI-naar-CLI
+   (`npx supabase projects api-keys --reveal` → `npx vercel env add NAAM production --sensitive`
+   via stdin), nooit via de chat of een commit.
+4. **Deploy** vanuit een schone export van `main` (geen lokale of genegeerde bestanden mee):
+   ```bash
+   git archive main | tar -x -C <lege map>
+   cd <lege map> && npx vercel link --yes --project skylineentertainment && npx vercel deploy --prod --yes
+   ```
+5. **Livetest**: één tijdelijke Administrator doorloopt alle modules en wordt daarna met alles wat
+   hij maakte verwijderd (de auditlog bewaart dat de test plaatsvond):
+   ```bash
+   LIVE_BASE_URL=https://skylineentertainment.vercel.app LIVE_ENV_FILE=<bestand met SUPABASE_URL,
+   SUPABASE_PUBLISHABLE_KEY en SUPABASE_SECRET_KEY> npx playwright test -c playwright.live.config.ts
    ```
 
-### 2. Vercel-project
-
-1. [vercel.com/new](https://vercel.com/new) → **Import** `Daniel2000dk/Skyline-entertainment`
-   (plan Hobby). Framework wordt automatisch herkend.
-2. **Settings → Environment Variables**, alleen voor **Preview**:
-   | Naam                       | Waarde                                                   |
-   | -------------------------- | -------------------------------------------------------- |
-   | `SUPABASE_URL`             | Supabase → Project Settings → API → Project URL          |
-   | `SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API Keys → publishable key |
-   | `SUPABASE_SECRET_KEY`      | Supabase → Project Settings → API Keys → secret key      |
-   | `RATE_LIMIT_SECRET`        | Willekeurig, min. 32 tekens (`openssl rand -base64 32`)  |
-3. Laat **Deployment Protection** op de standaard staan: previews zijn dan alleen zichtbaar voor
-   ingelogde Vercel-teamleden.
-4. Productie staat bewust uit: `vercel.json` voorkomt automatische deploys vanaf `main`. De eerste
-   import kan de huidige `main` proberen te deployen; dat is onschadelijk.
-
-### 3. Eerste Administrator op de preview
-
-Maak lokaal een bestand `.env.bootstrap` (wordt door git genegeerd):
+### Administrator-account
 
 ```bash
-SUPABASE_URL=...            # van het preview-project
-SUPABASE_SECRET_KEY=...     # van het preview-project
-SITE_URL=https://...        # de preview-URL
+node --env-file=<bestand met SUPABASE_URL, SUPABASE_SECRET_KEY, SITE_URL> scripts/create-admin.mjs   --email zuiderveenandrew@gmail.com --name Daniel
 ```
 
-```bash
-node --env-file=.env.bootstrap scripts/create-admin.mjs --email jij@voorbeeld.nl --name "Jouw naam"
-```
+Print een eenmalige link (1 uur geldig) om het wachtwoord in te stellen. Voor een bestaand account
+maakt hetzelfde commando een nieuwe link (bijv. als de enige Administrator het wachtwoord kwijt is).
 
-Open de geprinte link (1 uur geldig) en stel je wachtwoord in. Verwijder daarna `.env.bootstrap`.
+### E-mail ("wachtwoord vergeten")
 
-### 4. Optioneel: e-mail voor "wachtwoord vergeten"
-
-Zonder eigen SMTP stuurt Supabase alleen naar teamleden van het Supabase-project. Administrators
-kunnen altijd een nieuwe inloglink maken via **Team**. Wil je zelfbediening via e-mail, koppel
-dan een gratis SMTP-dienst onder **Authentication → Emails → SMTP Settings** (vraag eerst na of
-een dienst creditcardgegevens eist).
-
-### 5. Productie (pas na jouw akkoord)
-
-Tweede Supabase-project `skyline-production` (zelfde stappen), Production-variabelen in Vercel,
-en een bewuste eerste productie-deploy. Dit gebeurt pas na je expliciete toestemming.
+Zonder eigen SMTP stuurt Supabase alleen naar leden van de Supabase-organisatie, dus niet naar
+medewerkers. Administrators maken daarom een inloglink via **Team**. Wil je later zelfbediening via
+e-mail: koppel een gratis SMTP-dienst onder **Authentication → Emails → SMTP Settings**, met als
+afzender uitsluitend **zuiderveenandrew@gmail.com** (nooit een privéadres), en zet dan ook het
+template uit [`supabase/templates/recovery.html`](../supabase/templates/recovery.html).
