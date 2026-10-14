@@ -248,8 +248,9 @@ otp_expiry = 3600
 # sender_name = "Admin"
 
 # Recovery links go through /bevestigen (token_hash + explicit click), so mail
-# scanners cannot consume them and they work on any device. The same template
-# must be configured in the hosted project (see docs/setup.md).
+# scanners cannot consume them and they work on any device. Hosted on the Free
+# plan without custom SMTP, Supabase refuses custom templates, so production
+# config is pushed without this table (see docs/setup.md, "Release").
 [auth.email.template.recovery]
 subject = "Wachtwoord herstellen — Skyline Entertainment"
 content_path = "./supabase/templates/recovery.html"

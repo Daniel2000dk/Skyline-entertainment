@@ -28,6 +28,7 @@ Build Skyline Entertainment: a secure, fast, easy-to-use GTA RP event management
 - Production secrets only in Vercel environment variables and local gitignored env files. .env.example may contain names, no values. Different credentials/environments for preview versus production. The GitHub repo is **public**: never commit secrets, tokens or real personal data, and never rely on code secrecy.
 - Protect destructive actions with authorization, confirmation and activity logging. Test security regressions before deploy, including tests that prove abuse is actually refused.
 - Never ask the owner to paste secret keys into the chat.
+- The only owner email that may appear anywhere people can see it (UI, staff list, auth/sender emails, contact or privacy notice, SMTP sender) is **zuiderveenandrew@gmail.com**. Never use or show the owner's private address, and never write it into the repo. Commits use the repo-local git identity with that address.
 
 ## Cost and efficiency constraints — non-negotiable
 - **The project must not cost money.** Use only free tiers (GitHub Free, Vercel Hobby, Supabase Free, Cloudflare Turnstile free). Never enable paid plans, add-ons, paid APIs or usage-based billing, and never add a service that requires a credit card, without the owner's explicit approval. No VPS, Kubernetes, microservices, external AI services or unnecessary background processes.
@@ -42,7 +43,8 @@ Build Skyline Entertainment: a secure, fast, easy-to-use GTA RP event management
 - Leaflet for the GTA V map (licensed/permitted tiles only, documented coordinate transform).
 - Cloudflare Turnstile (server-side validation), durable rate limits in Postgres (`public.consume_rate_limit`), registration only through a controlled database function.
 - Vitest (unit), pgTAP via `supabase test db` (RLS/database), Playwright (e2e, desktop + mobile); lint, typecheck and build on CI.
-- GitHub (feature branches + PRs, CI), Vercel Git previews; production deploys are disabled from `main` (`vercel.json`) until the owner approves.
+- GitHub (feature branches + PRs, CI), Vercel Git previews; production deploys are disabled from `main` (`vercel.json`) and happen only through the approved release procedure in `docs/setup.md` (migrations, auth config, clean export of `main` + `vercel deploy --prod`, then the live smoke test `playwright.live.config.ts`).
+- Supabase Free allows two active projects (one is the owner's DPPS project, which must never be touched), so `skyline-entertainment` (ref `rjgizkedtrmaezvnlbis`) is the only hosted database and it is production. Previews have no backend variables; internal pages there answer 503 by design.
 - Keep dependencies current and verify APIs against official docs (for Next.js: `node_modules/next/dist/docs/`, see AGENTS.md) before using them.
 
 ## Codebase conventions

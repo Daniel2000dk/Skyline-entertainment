@@ -108,3 +108,21 @@ op het donkere oppervlak; elke grafiek heeft een tabelweergave.
 
 **D24. Kanban met knoppen in plaats van slepen.** Verplaatsen met "Starten/Klaar/Heropenen" werkt
 met toetsenbord en schermlezer en vraagt geen extra drag-and-drop-library.
+
+**D25. Eén online database, en dat is productie.** Supabase Free staat twee actieve projecten toe;
+het tweede is het bestaande DPPS-project van de eigenaar. Er is dus geen aparte preview-database:
+previews draaien zonder backend-variabelen (intern = 503), en alles wat data raakt wordt lokaal en
+in CI getest tegen een wegwerp-Supabase. Productie gaat alleen via de releaseprocedure in
+`docs/setup.md`, na akkoord.
+
+**D26. Livetest met een tijdelijk account.** Na een release doorloopt
+`playwright.live.config.ts` met één login alle modules op de echte site (inclusief 2FA, privé
+bestanden, RLS-controle via de publieke API en de beveiligingsheaders) en verwijdert daarna het
+account met alles wat het maakte. Eén login, zodat de echte rate limits niet in de weg zitten;
+de auditlog houdt bij dat de test plaatsvond.
+
+**D27. Herstelmail-template alleen lokaal.** Supabase Free met de standaard e-mailprovider weigert
+eigen templates en verstuurt alleen naar leden van de Supabase-organisatie. Online lopen
+wachtwoordherstel en uitnodigingen daarom via eenmalige links die een Administrator maakt (geen
+e-mail nodig). Het template gaat pas online mee als er gratis SMTP met afzender
+zuiderveenandrew@gmail.com is.

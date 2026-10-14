@@ -1,6 +1,6 @@
 # Voortgang
 
-_Laatst bijgewerkt: 2026-10-14 — fase B afgerond_
+_Laatst bijgewerkt: 2026-10-14 — fase A en B live in productie_
 
 ## Afgerond
 
@@ -57,40 +57,49 @@ _Laatst bijgewerkt: 2026-10-14 — fase B afgerond_
   geldbedragen volgen in fase C/D.
 - 🔒 Rate limiting met glijdend venster (geen dubbel budget op venstergrenzen).
 
+## Productie (live sinds 2026-10-14)
+
+- <https://skylineentertainment.vercel.app> draait `main` (fase A + B) met de productie-database
+  `skyline-entertainment`: 13 migraties toegepast, auth-instellingen gezet (zelfregistratie uit,
+  wachtwoord min. 12 tekens met letters en cijfers, veilig wachtwoord wijzigen, site-URL), Vercel-
+  variabelen alleen voor Production.
+- Administrator-account **Daniel** (zuiderveenandrew@gmail.com) aangemaakt via een eenmalige link.
+- Livetest geslaagd (zie hieronder); het tijdelijke testaccount en al zijn gegevens zijn verwijderd.
+- Previews hebben bewust geen backend (zie beslissing D25).
+
 ## In uitvoering
 
-- Fase C voorbereiden: GTA-kaartmateriaal (licentie-onderzoek), publieke evenementpagina's,
-  inschrijven met Turnstile.
+- Fase C: GTA-kaart en route-editor. De kaartafbeelding van de eigenaar staat lokaal in
+  `private/maps/` (door git genegeerd; niet publiceren in de publieke repo).
 
 ## Openstaande punten
 
-- **Productie nog niet bijgewerkt**: Supabase-project `skyline-entertainment` en Vercel zijn
-  gekoppeld en de productieconfig staat klaar (`[remotes.production]`), maar migraties,
-  auth-instellingen en Vercel-variabelen worden pas toegepast na jouw toestemming. Tot die tijd
-  staat zelfregistratie in het Supabase-project nog open (zonder tabellen; geen risico voor data).
-- **E-mail voor zelfbediening "wachtwoord vergeten"**: werkt online pas met een eigen SMTP-dienst.
-  Tot die tijd maakt een Administrator een inloglink via Team.
-- **GTA-kaartmateriaal (fase C)**: licentie-onderzoek nodig voordat er tiles worden gebruikt.
+- **E-mail voor "wachtwoord vergeten"**: online niet bruikbaar zonder eigen SMTP (Supabase Free
+  mailt alleen naar leden van de Supabase-organisatie). Een Administrator maakt een inloglink via
+  **Team**; voor de enige Administrator kan het script `create-admin.mjs` een nieuwe link maken.
+- **Kaartresolutie**: de aangeleverde kaart is 533 × 800 pixels; inzoomen wordt daardoor snel
+  wazig. Een grotere versie van dezelfde kaart kan later zonder routes te verliezen worden
+  vervangen (routes worden relatief aan de afbeelding opgeslagen).
 
-## Testresultaten (lokaal, 2026-10-14)
+## Testresultaten (2026-10-14)
 
 | Suite                        | Resultaat        | Dekt onder meer                                                                       |
 | ---------------------------- | ---------------- | ------------------------------------------------------------------------------------- |
 | Vitest (unit)                | 108/108 geslaagd | Validatie, datum/tijdzone, agenda- en periodelogica, bestandsherkenning, labels       |
 | pgTAP (database)             | 205/205 geslaagd | RLS per rol, cross-project, taken/uitvoerders, suggesties, ideeën, opslag, dashboard  |
 | Playwright (e2e)             | 59/59 geslaagd   | Auth, MFA, rollen, projecten, taken, discussies, ideeën, bestanden, agenda, dashboard |
+| Livetest productie           | 1/1 geslaagd     | Headers, RLS via publieke API, login, alle modules, privé bestanden, 2FA, uitloggen   |
 | Lint, types, Prettier, build | geslaagd         | Ook op GitHub Actions                                                                 |
 | Supabase advisors            | geen meldingen   |                                                                                       |
 
 ## Acties voor jou
 
-1. **Toestemming voor productie** (staat nog open): migraties toepassen op je Supabase-project,
-   auth-instellingen pushen, de Vercel-variabelen zetten, een nieuwe productie-deploy en je
-   Administrator-account. Zie het overzicht in het chatbericht.
+1. Open de eenmalige link uit de chat (1 uur geldig), stel je wachtwoord in en zet onder
+   **Account** tweestapsverificatie aan.
 2. **Fase C: Cloudflare Turnstile** (gratis): Cloudflare-account en een Turnstile-widget aanmaken.
-   Ik geef de exacte stappen zodra fase C begint.
+   Ik geef de exacte stappen zodra het inschrijfformulier klaar is.
 
 ## Volgende stap
 
-Fase C: GTA-kaart (na licentiekeuze), route-editor, publieke evenementpagina's, inschrijven met
-alleen de RP-naam, Turnstile, rate limiting en beheer van inschrijvingen.
+Fase C: GTA-kaart en route-editor, publieke evenementpagina's, inschrijven met alleen de RP-naam,
+Turnstile, rate limiting en beheer van inschrijvingen.
