@@ -47,7 +47,11 @@ _Laatst bijgewerkt: 2026-10-14 — fase B in uitvoering_
   project (naam, omschrijving en standaardtaken worden overgenomen; de discussie blijft gekoppeld).
   Bestanden per project en idee in privé-opslag: alleen afbeeldingen en PDF (gecontroleerd op
   inhoud), max. 4 MB, alleen via de eigen site en na sessiecontrole, met sandbox-CSP.
-- ⏳ Agenda, dashboard.
+- ✅ **Planning** (slice 5): gezamenlijke agenda (dag/week/maand; op mobiel als lijst) met
+  evenementen, deadlines van taken en teamactiviteiten — afgeleid van bestaande gegevens, niets
+  dubbel invoeren. Evenementen verplaatsen vanuit de agenda (duur schuift mee); teamactiviteiten met
+  verantwoordelijke.
+- ⏳ Dashboard.
 
 ## Openstaande punten
 

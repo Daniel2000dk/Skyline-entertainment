@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CalendarDaysIcon,
   FolderKanbanIcon,
   LayoutDashboardIcon,
   LightbulbIcon,
@@ -14,6 +15,7 @@ import type { NavItem } from "./nav-items";
 
 const icons = {
   dashboard: LayoutDashboardIcon,
+  planning: CalendarDaysIcon,
   projects: FolderKanbanIcon,
   tasks: ListChecksIcon,
   ideas: LightbulbIcon,

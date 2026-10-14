@@ -900,6 +900,71 @@ export type Database = {
           },
         ];
       };
+      team_activities: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          ends_at: string | null;
+          id: string;
+          location: string | null;
+          project_id: string | null;
+          responsible_id: string | null;
+          starts_at: string;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          location?: string | null;
+          project_id?: string | null;
+          responsible_id?: string | null;
+          starts_at: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          location?: string | null;
+          project_id?: string | null;
+          responsible_id?: string | null;
+          starts_at?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "team_activities_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_activities_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_activities_responsible_id_fkey";
+            columns: ["responsible_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -931,6 +996,7 @@ export type Database = {
         Returns: undefined;
       };
       my_editable_project_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
+      reschedule_event: { Args: { p_project_id: string; p_starts_at: string }; Returns: undefined };
       revert_content_revision: { Args: { p_revision_id: number }; Returns: undefined };
       staff_with_mfa: { Args: Record<PropertyKey, never>; Returns: string[] };
       update_event_project: {
