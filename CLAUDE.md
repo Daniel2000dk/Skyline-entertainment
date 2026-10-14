@@ -85,7 +85,7 @@ Build Skyline Entertainment: a secure, fast, easy-to-use GTA RP event management
 5. Keep `docs/decisions.md` (tradeoffs), `docs/architecture.md` (plan/data model) and `docs/progress.md` (done, in progress, open issues, test results, owner actions) current.
 6. Before changing auth, RLS, event registration uniqueness, financial logic or production settings, check impact and tests. Never weaken security just to make tests pass.
 7. Never commit secrets, production data, identifiable IP logs or licensed map assets without permissions.
-8. Use feature branches and PRs; Vercel previews before production. Never deploy to production or run destructive database migrations without explicit approval.
+8. Use feature branches and PRs; Vercel previews before production. Several Claude sessions may share this working directory: do your own work in a separate `git worktree`, and push migrations or deploy only from a clean export of `origin/main` (`supabase db push --workdir <export>`), checking that the dry-run lists exactly the expected migrations. Never deploy to production or run destructive database migrations without explicit approval.
 9. Work autonomously on ordinary engineering choices; ask only when the owner's input or external permission is truly needed, and then give only the necessary steps. Never claim functionality is done unless implemented and tested.
 10. In the final response after each coding task include: what changed, files touched, tests run, remaining issues, and exact next action.
 

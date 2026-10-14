@@ -149,3 +149,9 @@ kaart later zonder verschuiving kan worden geplaatst. Een route is een geordende
 (eerste = start, laatste = finish, of een rondgang), met checkpoints als vlag per punt; de database
 controleert vorm, bereik en maximaal 300 punten. Zonder afbeelding tekent de editor op een raster.
 De witte rand van de aangeleverde kaart is transparant gemaakt (origineel bewaard).
+
+**D30. Releases alleen vanuit een schone export.** Twee sessies deelden deze map; een `db push`
+nam daardoor een niet-gecommitte migratie van de andere sessie mee naar productie. Migraties en
+deploys gaan daarom alleen nog vanuit `git archive origin/main` (`--workdir` voor Supabase), en
+eigen werk gebeurt in een aparte `git worktree`. Een eenmaal toegepaste migratie wordt nooit meer
+aangepast; correcties volgen in een nieuwe migratie.

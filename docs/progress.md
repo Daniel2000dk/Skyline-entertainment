@@ -1,6 +1,6 @@
 # Voortgang
 
-_Laatst bijgewerkt: 2026-10-14 — fase A en B live in productie_
+_Laatst bijgewerkt: 2026-10-14 — fase A, B, huisstijl en GTA-kaart live in productie_
 
 ## Afgerond
 
@@ -66,8 +66,16 @@ _Laatst bijgewerkt: 2026-10-14 — fase A en B live in productie_
 - Administrator-account **Daniel** (zuiderveenandrew@gmail.com) aangemaakt via een eenmalige link.
 - Livetest geslaagd (zie hieronder); het tijdelijke testaccount en al zijn gegevens zijn verwijderd.
 - Previews hebben bewust geen backend (zie beslissing D25).
+- Tweede release (2026-10-14): huisstijl en GTA-kaart. Migratie `20261015100000_map_routes.sql`,
+  kaartafbeelding in de privé-bucket `maps`, deploy van `main`; livetest inclusief kaart geslaagd en
+  opgeruimd.
+- **Incident**: bij die release ging ook `20261016100000_username_login.sql` mee, een nog niet
+  gecommitte migratie van een parallelle sessie in dezelfde map. Nagelezen (alleen toevoegingen; de
+  live site werkt ermee) en op besluit van de eigenaar blijft hij staan. Die migratie mag niet meer
+  worden aangepast; wijzigingen gaan in een nieuwe migratie. Sindsdien gaan migraties alleen nog
+  vanuit een schone export van `origin/main` (D30).
 
-## Huisstijl (2026-10-14, nog niet in productie)
+## Huisstijl (live sinds 2026-10-14)
 
 - Officiële brandkit doorgevoerd: zwart/goud-kleuren, Montserrat + Inter, SE-logo (vector + echte
   tekst), favicon/app-iconen, linkvoorbeeld (Open Graph). Publieke homepage met sfeerbeeld en
@@ -76,7 +84,7 @@ _Laatst bijgewerkt: 2026-10-14 — fase A en B live in productie_
 
 ## Fase C (evenementen) — in uitvoering
 
-- ✅ **GTA-kaart en route-editor** (slice 1, nog niet in productie): tabblad **Kaart** per
+- ✅ **GTA-kaart en route-editor** (slice 1, live sinds 2026-10-14): tabblad **Kaart** per
   project. Zoomen en verschuiven; meerdere routes per evenement in vijf kleuren; punten zetten door
   op de kaart te klikken, verslepen, verwijderen, checkpoints, start/finish of rondgang; markers met
   notitie. Alle medewerkers kijken mee; alleen eigenaar, editors en admins tekenen. Kaartafbeelding

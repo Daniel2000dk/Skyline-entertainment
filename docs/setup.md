@@ -42,7 +42,13 @@ lokaal in een bestand dat git negeert (bij voorkeur buiten de repo).
 
 Vereist: ingelogd met `npx supabase login` en `npx vercel login` (doet de eigenaar zelf).
 
-1. **Migraties**: `npx supabase db push --dry-run`, controleren, dan `npx supabase db push`.
+1. **Migraties** alleen vanuit een schone export van `origin/main` (meerdere sessies kunnen deze map
+   delen; niet-gecommitte migraties mogen nooit mee):
+   ```bash
+   git fetch && git archive origin/main | tar -x -C <lege map>
+   npx supabase db push --workdir <lege map> --dry-run   # lijst = precies de nieuwe migraties uit main?
+   npx supabase db push --workdir <lege map>
+   ```
 2. **Auth-instellingen**: `npx supabase config diff --project-ref rjgizkedtrmaezvnlbis`. Supabase
    Free met de standaard e-mailprovider weigert eigen e-mailtemplates (en dan de hele auth-update).
    Push daarom een kopie van de config zónder `[auth.email.template.recovery]`:
