@@ -91,7 +91,9 @@ test("a suggestion is accepted by the owner and applied", async ({ page, browser
   await expect(card).toContainText("Geaccepteerd");
 
   await ownerPage.getByRole("link", { name: "Overzicht" }).click();
-  await expect(ownerPage.getByText("Del Perro Pier").filter({ visible: true }).first()).toBeVisible();
+  await expect(
+    ownerPage.getByText("Del Perro Pier").filter({ visible: true }).first(),
+  ).toBeVisible();
   await ownerPage.getByRole("link", { name: "Geschiedenis" }).click();
   await expect(ownerPage.getByText("Locatie gewijzigd").filter({ visible: true })).toBeVisible();
   await ownerContext.close();

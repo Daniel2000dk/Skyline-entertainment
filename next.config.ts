@@ -21,8 +21,7 @@ const contentSecurityPolicy = [
   ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
-const securityHeaders = [
-  { key: "Content-Security-Policy", value: contentSecurityPolicy },
+const baseSecurityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -31,12 +30,19 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
 
+// Uploaded files are inert documents: no scripts, no plugins, sandboxed.
+const fileSecurityPolicy = "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox";
+
 const privateHeaders = [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  experimental: {
+    // Uploads (max 4 MB file + form overhead); Vercel caps requests at 4.5 MB.
+    serverActions: { bodySizeLimit: "4.5mb" },
+  },
   turbopack: {
     rules: {
       "*.css": {
@@ -47,7 +53,16 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      { source: "/:path*", headers: securityHeaders },
+      { source: "/:path*", headers: baseSecurityHeaders },
+      {
+        // Pages get the app CSP; staff files (below) get a stricter one.
+        source: "/((?!intern/bestanden/).*)",
+        headers: [{ key: "Content-Security-Policy", value: contentSecurityPolicy }],
+      },
+      {
+        source: "/intern/bestanden/:path*",
+        headers: [...privateHeaders, { key: "Content-Security-Policy", value: fileSecurityPolicy }],
+      },
       { source: "/intern/:path*", headers: privateHeaders },
       { source: "/login", headers: privateHeaders },
       { source: "/wachtwoord-:slug", headers: privateHeaders },

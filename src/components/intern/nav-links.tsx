@@ -1,6 +1,12 @@
 "use client";
 
-import { FolderKanbanIcon, LayoutDashboardIcon, ListChecksIcon, UsersIcon } from "lucide-react";
+import {
+  FolderKanbanIcon,
+  LayoutDashboardIcon,
+  LightbulbIcon,
+  ListChecksIcon,
+  UsersIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -10,6 +16,7 @@ const icons = {
   dashboard: LayoutDashboardIcon,
   projects: FolderKanbanIcon,
   tasks: ListChecksIcon,
+  ideas: LightbulbIcon,
   team: UsersIcon,
 } as const;
 

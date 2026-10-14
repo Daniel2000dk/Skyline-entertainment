@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Checklist } from "@/components/projects/checklist";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireStaff } from "@/lib/auth/staff";
+import { getIdeaForProject } from "@/lib/ideas/queries";
 import {
   getProject,
   listActiveStaff,
@@ -23,10 +25,11 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/intern
   if (!project) notFound();
 
   const { canEdit, canManage } = projectRights(staff, project);
-  const [eventTypes, activeStaff, checklist] = await Promise.all([
+  const [eventTypes, activeStaff, checklist, originIdea] = await Promise.all([
     listEventTypes(),
     canManage ? listActiveStaff() : Promise.resolve([]),
     listChecklist(project.id),
+    getIdeaForProject(project.id),
   ]);
 
   return (
@@ -50,6 +53,26 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/intern
         </Card>
       </div>
       <div className="flex flex-col gap-6">
+        {originIdea && (
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <h2>Ontstaan uit een idee</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <Link
+                href={`/intern/ideeen/${originIdea.id}`}
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                {originIdea.title}
+              </Link>
+              <p className="mt-1 text-muted-foreground">
+                De oorspronkelijke discussie staat bij het idee.
+              </p>
+            </CardContent>
+          </Card>
+        )}
         {canManage && <StatusSection projectId={project.id} status={project.status} />}
         <MembersSection project={project} staff={activeStaff} canManage={canManage} />
         {canManage && <DangerZone projectId={project.id} title={project.title} />}
