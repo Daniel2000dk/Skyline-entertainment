@@ -62,7 +62,10 @@ Vereist: ingelogd met `npx supabase login` en `npx vercel login` (doet de eigena
    git archive main | tar -x -C <lege map>
    cd <lege map> && npx vercel link --yes --project skylineentertainment && npx vercel deploy --prod --yes
    ```
-5. **Livetest**: één tijdelijke Administrator doorloopt alle modules en wordt daarna met alles wat
+5. **Kaartafbeelding** (eenmalig of bij vervanging; staat lokaal in `private/maps/`):
+   `node --env-file=<bestand met SUPABASE_URL en SUPABASE_SECRET_KEY> scripts/upload-map.mjs <afbeelding>`.
+   Lokaal: `npm run map:upload -- private/maps/gta-v-kaart-transparant.png`.
+6. **Livetest**: één tijdelijke Administrator doorloopt alle modules en wordt daarna met alles wat
    hij maakte verwijderd (de auditlog bewaart dat de test plaatsvond):
    ```bash
    LIVE_BASE_URL=https://skylineentertainment.vercel.app LIVE_ENV_FILE=<bestand met SUPABASE_URL,

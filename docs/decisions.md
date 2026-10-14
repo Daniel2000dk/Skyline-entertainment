@@ -137,3 +137,15 @@ secundaire tekst is #A8A8A8 (7,3:1 op kaarten) in plaats van #E5E5E5, dat te dic
 om hiërarchie te tonen; #E5E5E5 blijft voor langere publieke tekst. Invoerranden #6B6B6B halen
 3:1. De grafiekkleur blijft #B38B35 (gevalideerd); #D4AF37 valt buiten de lichtheidsband voor
 grafieken op donker.
+
+**D29. GTA-kaart: eigen afbeelding, privé, relatieve coördinaten.** Er is geen GTA V-kaart met
+een duidelijke vrije licentie. De eigenaar leverde een kaartafbeelding aan; die blijft buiten de
+publieke repo (`private/maps/`, door git genegeerd) en staat in een privé storage-bucket
+(`maps`) die alleen actieve medewerkers kunnen lezen. De site serveert hem via
+`/intern/kaart/afbeelding` na een sessiecontrole (privé gecachet, met versieparameter). Leaflet
+(BSD-2) toont hem met `CRS.Simple` als één afbeelding, zonder tiles. Punten worden opgeslagen als
+x/y van 0 tot 1 vanaf de linkerbovenhoek van de afbeelding, zodat een scherpere versie van dezelfde
+kaart later zonder verschuiving kan worden geplaatst. Een route is een geordende puntenlijst
+(eerste = start, laatste = finish, of een rondgang), met checkpoints als vlag per punt; de database
+controleert vorm, bereik en maximaal 300 punten. Zonder afbeelding tekent de editor op een raster.
+De witte rand van de aangeleverde kaart is transparant gemaakt (origineel bewaard).
