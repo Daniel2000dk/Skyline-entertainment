@@ -616,6 +616,7 @@ export type Database = {
         Args: { security_event: string; target_staff_id: string };
         Returns: undefined;
       };
+      my_editable_project_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
       revert_content_revision: { Args: { p_revision_id: number }; Returns: undefined };
       staff_with_mfa: { Args: Record<PropertyKey, never>; Returns: string[] };
       update_event_project: {

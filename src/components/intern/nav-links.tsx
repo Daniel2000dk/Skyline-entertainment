@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderKanbanIcon, LayoutDashboardIcon, UsersIcon } from "lucide-react";
+import { FolderKanbanIcon, LayoutDashboardIcon, ListChecksIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import type { NavItem } from "./nav-items";
 const icons = {
   dashboard: LayoutDashboardIcon,
   projects: FolderKanbanIcon,
+  tasks: ListChecksIcon,
   team: UsersIcon,
 } as const;
 

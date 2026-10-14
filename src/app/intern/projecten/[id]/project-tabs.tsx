@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const TABS = [
   { segment: "", label: "Overzicht" },
+  { segment: "taken", label: "Taken" },
   { segment: "draaiboek", label: "Draaiboek" },
   { segment: "geschiedenis", label: "Geschiedenis" },
 ] as const;
