@@ -31,4 +31,10 @@ test("staff can navigate with the mobile menu", async ({ page }) => {
   await expect(page).toHaveURL(/\/intern\/team$/);
   await expect(page.getByRole("heading", { name: "Team", level: 1 })).toBeVisible();
   await expectNoHorizontalScroll(page);
+
+  for (const path of ["/intern/planning", "/intern/projecten", "/intern/taken", "/intern/ideeen"]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectNoHorizontalScroll(page);
+  }
 });

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { SuggestionField } from "@/lib/validation/discussions";
 
 export type DiscussionSubject =
-  { projectId: string } | { taskId: string } | { suggestionId: string };
+  { projectId: string } | { taskId: string } | { suggestionId: string } | { ideaId: string };
 
 export type CommentView = {
   id: string;
@@ -29,7 +29,7 @@ type CommentRow = {
 };
 
 const COMMENT_COLUMNS =
-  "id, parent_id, author_id, body, created_at, edited_at, deleted_at, project_id, task_id, suggestion_id, author:staff_profiles!comments_author_id_fkey(display_name)";
+  "id, parent_id, author_id, body, created_at, edited_at, deleted_at, project_id, task_id, suggestion_id, idea_id, author:staff_profiles!comments_author_id_fkey(display_name)";
 
 function toView(row: CommentRow): CommentView {
   return {
@@ -58,7 +58,8 @@ export async function listThreads(subject: DiscussionSubject): Promise<Thread[]>
   let query = supabase.from("comments").select(COMMENT_COLUMNS).order("created_at").limit(500);
   if ("projectId" in subject) query = query.eq("project_id", subject.projectId);
   else if ("taskId" in subject) query = query.eq("task_id", subject.taskId);
-  else query = query.eq("suggestion_id", subject.suggestionId);
+  else if ("suggestionId" in subject) query = query.eq("suggestion_id", subject.suggestionId);
+  else query = query.eq("idea_id", subject.ideaId);
   const { data, error } = await query;
   if (error) throw new Error("Kon de discussie niet laden");
   return buildThreads(data as CommentRow[]);

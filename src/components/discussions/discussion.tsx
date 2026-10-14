@@ -10,7 +10,7 @@ import { formatDateTime } from "@/lib/datetime";
 import type { CommentView, Thread } from "@/lib/discussions/queries";
 import { idleFormState } from "@/lib/forms";
 
-type Subject = { projectId?: string; taskId?: string; suggestionId?: string };
+type Subject = { projectId?: string; taskId?: string; suggestionId?: string; ideaId?: string };
 
 function CommentForm({
   subject,
@@ -30,7 +30,7 @@ function CommentForm({
     if (result.status === "success") onDone?.();
     return result;
   }, idleFormState);
-  const fieldId = `comment-${parentId ?? subject.projectId ?? subject.taskId ?? subject.suggestionId}`;
+  const fieldId = `comment-${parentId ?? subject.projectId ?? subject.taskId ?? subject.suggestionId ?? subject.ideaId}`;
 
   return (
     <form action={action} className="flex flex-col gap-2">
@@ -43,6 +43,7 @@ function CommentForm({
           {subject.suggestionId && (
             <input type="hidden" name="suggestionId" value={subject.suggestionId} />
           )}
+          {subject.ideaId && <input type="hidden" name="ideaId" value={subject.ideaId} />}
         </>
       )}
       <FormMessage state={state} />

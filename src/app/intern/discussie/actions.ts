@@ -25,10 +25,11 @@ export async function addComment(_prev: FormState, formData: FormData): Promise<
     project_id: optionalId(formData, "projectId"),
     task_id: optionalId(formData, "taskId"),
     suggestion_id: optionalId(formData, "suggestionId"),
+    idea_id: optionalId(formData, "ideaId"),
     parent_id: optionalId(formData, "parentId"),
   };
   if (Object.values(ids).includes("invalid")) return INVALID;
-  const subjects = [ids.project_id, ids.task_id, ids.suggestion_id].filter(Boolean);
+  const subjects = [ids.project_id, ids.task_id, ids.suggestion_id, ids.idea_id].filter(Boolean);
   if (!ids.parent_id && subjects.length !== 1) return INVALID;
 
   const parsed = commentSchema.safeParse({ body: formValue(formData, "body") });
@@ -42,6 +43,7 @@ export async function addComment(_prev: FormState, formData: FormData): Promise<
           project_id: ids.project_id as string | null,
           task_id: ids.task_id as string | null,
           suggestion_id: ids.suggestion_id as string | null,
+          idea_id: ids.idea_id as string | null,
         }),
     body: parsed.data.body,
   });

@@ -42,7 +42,16 @@ _Laatst bijgewerkt: 2026-10-14 — fase B in uitvoering_
   niveau antwoorden; bewerken door de auteur, verwijderen door auteur of admin. Suggesties per veld
   of algemeen; de eigenaar accepteert (wordt direct en terugdraaibaar toegepast) of wijst af; de
   auteur kan intrekken.
-- ⏳ Bijlagen en ideeënbord, agenda, dashboard.
+- ✅ **Ideeënbord en bijlagen** (slice 4): ideeën delen, stemmen, discussiëren en afbeeldingen
+  toevoegen; admins en Event Managers keuren goed of af en zetten een idee met één klik om naar een
+  project (naam, omschrijving en standaardtaken worden overgenomen; de discussie blijft gekoppeld).
+  Bestanden per project en idee in privé-opslag: alleen afbeeldingen en PDF (gecontroleerd op
+  inhoud), max. 4 MB, alleen via de eigen site en na sessiecontrole, met sandbox-CSP.
+- ✅ **Planning** (slice 5): gezamenlijke agenda (dag/week/maand; op mobiel als lijst) met
+  evenementen, deadlines van taken en teamactiviteiten — afgeleid van bestaande gegevens, niets
+  dubbel invoeren. Evenementen verplaatsen vanuit de agenda (duur schuift mee); teamactiviteiten met
+  verantwoordelijke.
+- ⏳ Dashboard.
 
 ## Openstaande punten
 

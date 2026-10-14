@@ -37,6 +37,65 @@ export type Database = {
         };
         Relationships: [];
       };
+      attachments: {
+        Row: {
+          content_type: string;
+          created_at: string;
+          file_name: string;
+          id: string;
+          idea_id: string | null;
+          project_id: string | null;
+          size_bytes: number;
+          storage_path: string;
+          uploaded_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          content_type: string;
+          created_at?: string;
+          file_name: string;
+          id?: string;
+          idea_id?: string | null;
+          project_id?: string | null;
+          size_bytes: number;
+          storage_path: string;
+          uploaded_by?: string | null;
+        };
+        Update: {
+          content_type?: string;
+          created_at?: string;
+          file_name?: string;
+          id?: string;
+          idea_id?: string | null;
+          project_id?: string | null;
+          size_bytes?: number;
+          storage_path?: string;
+          uploaded_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "attachments_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "attachments_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "attachments_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       checklist_items: {
         Row: {
           created_at: string;
@@ -104,6 +163,7 @@ export type Database = {
           deleted_at: string | null;
           edited_at: string | null;
           id: string;
+          idea_id: string | null;
           parent_id: string | null;
           project_id: string | null;
           suggestion_id: string | null;
@@ -117,6 +177,7 @@ export type Database = {
           deleted_at?: string | null;
           edited_at?: string | null;
           id?: string;
+          idea_id?: string | null;
           parent_id?: string | null;
           project_id?: string | null;
           suggestion_id?: string | null;
@@ -129,6 +190,7 @@ export type Database = {
           deleted_at?: string | null;
           edited_at?: string | null;
           id?: string;
+          idea_id?: string | null;
           parent_id?: string | null;
           project_id?: string | null;
           suggestion_id?: string | null;
@@ -140,6 +202,13 @@ export type Database = {
             columns: ["author_id"];
             isOneToOne: false;
             referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
             referencedColumns: ["id"];
           },
           {
@@ -292,6 +361,102 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "events_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: true;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      idea_votes: {
+        Row: {
+          created_at: string;
+          idea_id: string;
+          staff_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          idea_id: string;
+          staff_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          idea_id?: string;
+          staff_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "idea_votes_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "idea_votes_staff_id_fkey";
+            columns: ["staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      ideas: {
+        Row: {
+          author_id: string | null;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          description: string | null;
+          id: string;
+          project_id: string | null;
+          status: Database["public"]["Enums"]["idea_status"];
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          description?: string | null;
+          id?: string;
+          project_id?: string | null;
+          status?: Database["public"]["Enums"]["idea_status"];
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          description?: string | null;
+          id?: string;
+          project_id?: string | null;
+          status?: Database["public"]["Enums"]["idea_status"];
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ideas_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ideas_decided_by_fkey";
+            columns: ["decided_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ideas_project_id_fkey";
             columns: ["project_id"];
             isOneToOne: true;
             referencedRelation: "projects";
@@ -735,6 +900,71 @@ export type Database = {
           },
         ];
       };
+      team_activities: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          ends_at: string | null;
+          id: string;
+          location: string | null;
+          project_id: string | null;
+          responsible_id: string | null;
+          starts_at: string;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          location?: string | null;
+          project_id?: string | null;
+          responsible_id?: string | null;
+          starts_at: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          location?: string | null;
+          project_id?: string | null;
+          responsible_id?: string | null;
+          starts_at?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "team_activities_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_activities_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_activities_responsible_id_fkey";
+            columns: ["responsible_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -743,6 +973,10 @@ export type Database = {
       consume_rate_limit: {
         Args: { limit_key: string; max_hits: number; window_seconds: number };
         Returns: boolean;
+      };
+      convert_idea_to_project: {
+        Args: { p_event_type_id?: string; p_idea_id: string };
+        Returns: string;
       };
       create_event_project: {
         Args: {
@@ -762,6 +996,7 @@ export type Database = {
         Returns: undefined;
       };
       my_editable_project_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
+      reschedule_event: { Args: { p_project_id: string; p_starts_at: string }; Returns: undefined };
       revert_content_revision: { Args: { p_revision_id: number }; Returns: undefined };
       staff_with_mfa: { Args: Record<PropertyKey, never>; Returns: string[] };
       update_event_project: {
@@ -784,6 +1019,7 @@ export type Database = {
       };
     };
     Enums: {
+      idea_status: "new" | "discussing" | "approved" | "rejected" | "converted";
       project_permission: "editor" | "commenter";
       project_status:
         | "idea"
@@ -910,6 +1146,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      idea_status: ["new", "discussing", "approved", "rejected", "converted"],
       project_permission: ["editor", "commenter"],
       project_status: [
         "idea",
