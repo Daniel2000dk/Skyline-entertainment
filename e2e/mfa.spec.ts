@@ -46,7 +46,7 @@ test("staff can enable MFA and then need a code to log in", async ({ page }) => 
   await expect(page).toHaveURL(/\/login$/);
 
   // Password alone is not enough any more.
-  await login(page, staff.email, staff.password);
+  await login(page, staff.username, staff.password);
   await expect(page).toHaveURL(/\/mfa\?next=%2Fintern$/);
   await page.goto("/intern/team");
   await expect(page).toHaveURL(/\/mfa$/);
@@ -84,7 +84,7 @@ test("an admin can reset a member's MFA after a lost phone", async ({ page, brow
 
   const memberContext = await newClient(browser);
   const memberPage = await memberContext.newPage();
-  await login(memberPage, member.email, member.password);
+  await login(memberPage, member.username, member.password);
   await expect(memberPage.getByRole("heading", { name: `Welkom, ${member.name}` })).toBeVisible();
   await memberContext.close();
 });

@@ -732,6 +732,58 @@ export type Database = {
           },
         ];
       };
+      staff_activations: {
+        Row: {
+          code_hash: string;
+          created_at: string;
+          created_by: string | null;
+          expires_at: string;
+          failed_attempts: number;
+          id: string;
+          staff_id: string;
+          token_hash: string;
+          used_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          code_hash: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string;
+          failed_attempts?: number;
+          id?: string;
+          staff_id: string;
+          token_hash: string;
+          used_at?: string | null;
+        };
+        Update: {
+          code_hash?: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string;
+          failed_attempts?: number;
+          id?: string;
+          staff_id?: string;
+          token_hash?: string;
+          used_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_activations_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "staff_activations_staff_id_fkey";
+            columns: ["staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       staff_invitations: {
         Row: {
           claimed_at: string | null;
@@ -744,6 +796,7 @@ export type Database = {
           revoked_at: string | null;
           role: Database["public"]["Enums"]["staff_role"];
           user_id: string | null;
+          username: string | null;
         };
         ComputedFields: never;
         Insert: {
@@ -757,6 +810,7 @@ export type Database = {
           revoked_at?: string | null;
           role?: Database["public"]["Enums"]["staff_role"];
           user_id?: string | null;
+          username?: string | null;
         };
         Update: {
           claimed_at?: string | null;
@@ -769,6 +823,7 @@ export type Database = {
           revoked_at?: string | null;
           role?: Database["public"]["Enums"]["staff_role"];
           user_id?: string | null;
+          username?: string | null;
         };
         Relationships: [
           {
@@ -789,6 +844,7 @@ export type Database = {
           is_active: boolean;
           role: Database["public"]["Enums"]["staff_role"];
           updated_at: string;
+          username: string;
         };
         ComputedFields: never;
         Insert: {
@@ -799,6 +855,7 @@ export type Database = {
           is_active?: boolean;
           role?: Database["public"]["Enums"]["staff_role"];
           updated_at?: string;
+          username: string;
         };
         Update: {
           created_at?: string;
@@ -808,6 +865,7 @@ export type Database = {
           is_active?: boolean;
           role?: Database["public"]["Enums"]["staff_role"];
           updated_at?: string;
+          username?: string;
         };
         Relationships: [
           {
@@ -1094,6 +1152,10 @@ export type Database = {
         };
         Returns: string;
       };
+      create_staff_activation: {
+        Args: { p_code_hash: string; p_token_hash: string; target_staff_id: string };
+        Returns: undefined;
+      };
       dashboard_summary: {
         Args: { p_from: string; p_granularity?: string; p_to: string };
         Returns: Json;
@@ -1107,8 +1169,13 @@ export type Database = {
         Returns: undefined;
       };
       my_editable_project_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
+      redeem_staff_activation: {
+        Args: { p_code_hash: string; p_token_hash: string };
+        Returns: string;
+      };
       reschedule_event: { Args: { p_project_id: string; p_starts_at: string }; Returns: undefined };
       revert_content_revision: { Args: { p_revision_id: number }; Returns: undefined };
+      staff_login_email: { Args: { p_username: string }; Returns: string };
       staff_with_mfa: { Args: Record<PropertyKey, never>; Returns: string[] };
       update_event_project: {
         Args: {

@@ -20,7 +20,7 @@ test("security headers are set", async ({ request }) => {
 });
 
 test("token links never leak via the Referer header", async ({ request }) => {
-  const response = await request.get("/bevestigen?token_hash=abcdefghijkl&type=invite");
+  const response = await request.get("/activeren?t=abcdefghijkl");
   expect(response.headers()["referrer-policy"]).toBe("no-referrer");
   expect(response.headers()["x-robots-tag"]).toBe("noindex, nofollow");
 });

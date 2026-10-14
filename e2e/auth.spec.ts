@@ -5,7 +5,6 @@ import {
   createStaff,
   login,
   loginAsStaff,
-  uniqueEmail,
   assignRandomIp,
   formAlert,
 } from "./support/helpers";
@@ -17,11 +16,11 @@ test.beforeEach(async ({ context }) => {
 test("wrong credentials show one generic message", async ({ page }) => {
   const staff = await createStaff("team_member");
 
-  await login(page, staff.email, "Verkeerd-wachtwoord-1");
-  await expect(formAlert(page)).toHaveText("E-mailadres of wachtwoord klopt niet.");
+  await login(page, staff.username, "Verkeerd-wachtwoord-1");
+  await expect(formAlert(page)).toHaveText("Gebruikersnaam of wachtwoord klopt niet.");
 
-  await login(page, uniqueEmail("onbekend"), "Verkeerd-wachtwoord-1");
-  await expect(formAlert(page)).toHaveText("E-mailadres of wachtwoord klopt niet.");
+  await login(page, "onbekende-gebruiker", "Verkeerd-wachtwoord-1");
+  await expect(formAlert(page)).toHaveText("Gebruikersnaam of wachtwoord klopt niet.");
 });
 
 test("an admin can log in, sees Team and can log out", async ({ page }) => {
@@ -48,7 +47,8 @@ test("a Medewerker cannot open admin pages", async ({ page }) => {
   await loginAsStaff(page, staff);
 
   await expect(page.locator("aside").getByText("Medewerker", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Team" })).toHaveCount(0);
+  const nav = page.getByRole("navigation", { name: "Hoofdmenu" });
+  await expect(nav.getByRole("link", { name: "Team", exact: true })).toHaveCount(0);
 
   await page.goto("/intern/team");
   await expect(page).toHaveURL(/\/intern\/geen-toegang$/);
@@ -65,10 +65,9 @@ test("an Event Manager cannot open admin pages either", async ({ page }) => {
 
 test("an account without invitation gets no access", async ({ page }) => {
   const outsider = await createNonStaffUser();
+  // Only staff have a username; the Auth email is not a login name.
   await login(page, outsider.email, outsider.password);
-  await expect(formAlert(page)).toHaveText(
-    "Dit account heeft geen toegang tot het interne systeem.",
-  );
+  await expect(formAlert(page)).toHaveText("Gebruikersnaam of wachtwoord klopt niet.");
   await page.goto("/intern");
   await expect(page).toHaveURL(/\/login/);
 });
@@ -78,7 +77,7 @@ test("a deactivated staff member cannot log in", async ({ page }) => {
   await admin.from("staff_profiles").update({ is_active: false }).eq("id", staff.id);
   await admin.auth.admin.updateUserById(staff.id, { ban_duration: "876000h" });
 
-  await login(page, staff.email, staff.password);
+  await login(page, staff.username, staff.password);
   await expect(formAlert(page)).toBeVisible();
   await expect(page).toHaveURL(/\/login/);
 });
@@ -87,7 +86,7 @@ test("after login the user returns to the requested internal page", async ({ pag
   const staff = await createStaff("admin", "Robin Return");
   await page.goto("/intern/team");
   await expect(page).toHaveURL(/\/login\?next=%2Fintern%2Fteam$/);
-  await page.getByLabel("E-mailadres").fill(staff.email);
+  await page.getByLabel("Gebruikersnaam").fill(staff.username);
   await page.getByLabel("Wachtwoord").fill(staff.password);
   await page.getByRole("button", { name: "Inloggen" }).click();
   await expect(page).toHaveURL(/\/intern\/team$/);
@@ -96,7 +95,7 @@ test("after login the user returns to the requested internal page", async ({ pag
 test("the next parameter cannot redirect to another site", async ({ page }) => {
   const staff = await createStaff("team_member", "Ollie Openredirect");
   await page.goto("/login?next=https://evil.example/intern");
-  await page.getByLabel("E-mailadres").fill(staff.email);
+  await page.getByLabel("Gebruikersnaam").fill(staff.username);
   await page.getByLabel("Wachtwoord").fill(staff.password);
   await page.getByRole("button", { name: "Inloggen" }).click();
   await expect(page).toHaveURL("http://localhost:3000/intern");
@@ -105,11 +104,11 @@ test("the next parameter cannot redirect to another site", async ({ page }) => {
 test("repeated failed logins are throttled", async ({ page }) => {
   const staff = await createStaff("team_member");
   for (let attempt = 0; attempt < 10; attempt++) {
-    await login(page, staff.email, `Verkeerd-${attempt}-wachtwoord`);
+    await login(page, staff.username, `Verkeerd-${attempt}-wachtwoord`);
     await expect(formAlert(page)).toBeVisible();
   }
   // Even the correct password is refused while the account is throttled.
-  await login(page, staff.email, staff.password);
+  await login(page, staff.username, staff.password);
   await expect(formAlert(page)).toHaveText(
     "Te veel inlogpogingen. Probeer het over een kwartier opnieuw.",
   );

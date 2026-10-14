@@ -9,25 +9,25 @@ export type TeamMember = {
   displayName: string;
   role: StaffRole;
   isActive: boolean;
-  email: string | null;
+  username: string;
   hasSignedIn: boolean;
   hasMfa: boolean;
   createdAt: string;
 };
 
-/** Admin-only: staff with their login email and whether they ever signed in. */
+/** Admin-only: staff with their username and whether they ever signed in. */
 export async function listTeam(): Promise<TeamMember[]> {
   await requireRole(["admin"]);
 
   const supabase = await createClient();
   const { data: profiles, error } = await supabase
     .from("staff_profiles")
-    .select("id, display_name, role, is_active, created_at")
+    .select("id, display_name, username, role, is_active, created_at")
     .order("is_active", { ascending: false })
     .order("display_name");
   if (error) throw new Error("Kon medewerkers niet laden");
 
-  // Emails and sign-in state live in Auth, readable only with the secret key.
+  // Sign-in state lives in Auth, readable only with the secret key.
   const admin = createAdminClient();
   const { data: users } = await admin.auth.admin.listUsers({ perPage: 1000 });
   const authById = new Map((users?.users ?? []).map((user) => [user.id, user]));
@@ -41,7 +41,7 @@ export async function listTeam(): Promise<TeamMember[]> {
       displayName: profile.display_name,
       role: profile.role,
       isActive: profile.is_active,
-      email: user?.email ?? null,
+      username: profile.username,
       hasSignedIn: Boolean(user?.last_sign_in_at),
       hasMfa: withMfa.has(profile.id),
       createdAt: profile.created_at,

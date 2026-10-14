@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/intern", "/login", "/bevestigen", "/wachtwoord-"],
+      disallow: ["/intern", "/login", "/activeren", "/wachtwoord-"],
     },
   };
 }
