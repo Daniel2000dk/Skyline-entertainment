@@ -35,7 +35,14 @@ _Laatst bijgewerkt: 2026-10-14 — fase B in uitvoering_
   template, details bewerken (project + evenement in één keer), status, team en rechten, checklist,
   draaiboek, geschiedenis met terugzetten, verwijderen met bevestiging. Uitloggen wist nu ook
   verborgen pagina's uit de browser.
-- ⏳ Taken (Kanban), discussies en suggesties, bijlagen en ideeënbord, agenda, dashboard.
+- ✅ **Taken** (slice 2): Kanban (Mijn taken / Alle taken en per project), taak toevoegen,
+  bewerken en verwijderen, deadlines met "te laat"-markering, prioriteit, checklist per taak.
+  Uitvoerders zonder bewerkrecht kunnen hun eigen taak voortzetten en afvinken.
+- ✅ **Discussies en suggesties** (slice 3): discussies per project, taak en suggestie met één
+  niveau antwoorden; bewerken door de auteur, verwijderen door auteur of admin. Suggesties per veld
+  of algemeen; de eigenaar accepteert (wordt direct en terugdraaibaar toegepast) of wijst af; de
+  auteur kan intrekken.
+- ⏳ Bijlagen en ideeënbord, agenda, dashboard.
 
 ## Openstaande punten
 
