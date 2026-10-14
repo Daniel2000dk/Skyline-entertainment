@@ -21,6 +21,7 @@ function taskValues(formData: FormData) {
     assigneeId: formValue(formData, "assigneeId"),
     dueAt: formValue(formData, "dueAt"),
     priority: formValue(formData, "priority"),
+    status: formValue(formData, "status"),
   };
 }
 
@@ -40,11 +41,17 @@ export async function createTask(_prev: FormState, formData: FormData): Promise<
     assignee_id: parsed.data.assigneeId,
     due_at: parsed.data.dueAt,
     priority: parsed.data.priority,
+    status: parsed.data.status,
   });
   if (error) return { status: "error", message: dbErrorMessage(error), values };
 
   revalidateInternal();
-  return { status: "success", message: "Taak toegevoegd." };
+  return {
+    status: "success",
+    message: parsed.data.dueAt
+      ? "Taak toegevoegd. De deadline staat ook in de planning."
+      : "Taak toegevoegd.",
+  };
 }
 
 export async function updateTask(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -64,6 +71,7 @@ export async function updateTask(_prev: FormState, formData: FormData): Promise<
       assignee_id: parsed.data.assigneeId,
       due_at: parsed.data.dueAt,
       priority: parsed.data.priority,
+      status: parsed.data.status,
     })
     .eq("id", taskId)
     .select("id");

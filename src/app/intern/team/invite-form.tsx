@@ -17,12 +17,17 @@ export function InviteForm() {
 
   return (
     <div className="flex flex-col gap-4">
-      {state.status === "success" && state.link && (
+      {state.status === "success" && state.link && state.code && (
         <>
           <Alert variant="success">
             <AlertDescription>{state.message}</AlertDescription>
           </Alert>
-          <LinkResult link={state.link} label="Uitnodigingslink" />
+          <LinkResult
+            link={state.link}
+            code={state.code}
+            username={state.username}
+            label="Activatielink"
+          />
         </>
       )}
       {state.status === "error" && state.message && (
@@ -37,15 +42,6 @@ export function InviteForm() {
         noValidate
       >
         <FormField
-          id="email"
-          label="E-mailadres"
-          type="email"
-          autoComplete="off"
-          required
-          defaultValue={state.status === "error" ? state.values?.email : undefined}
-          error={state.fieldErrors?.email}
-        />
-        <FormField
           id="displayName"
           label="Naam"
           autoComplete="off"
@@ -53,6 +49,18 @@ export function InviteForm() {
           maxLength={60}
           defaultValue={state.status === "error" ? state.values?.displayName : undefined}
           error={state.fieldErrors?.displayName}
+        />
+        <FormField
+          id="username"
+          label="Gebruikersnaam"
+          hint="Om mee in te loggen. Letters, cijfers, punt of streepje."
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          required
+          maxLength={30}
+          defaultValue={state.status === "error" ? state.values?.username : undefined}
+          error={state.fieldErrors?.username}
         />
         <Field data-invalid={state.fieldErrors?.role ? true : undefined}>
           <FieldLabel htmlFor="role">Rol</FieldLabel>
@@ -75,7 +83,7 @@ export function InviteForm() {
           {STAFF_ROLES.map((role) => `${ROLE_LABELS[role]}: ${ROLE_DESCRIPTIONS[role]}`).join(" ")}
         </p>
         <SubmitButton className="md:mt-[1.625rem]" pendingLabel="Bezig…">
-          Uitnodigen
+          Toevoegen
         </SubmitButton>
       </form>
     </div>

@@ -81,7 +81,7 @@ Vereist: ingelogd met `npx supabase login` en `npx vercel login` (doet de eigena
 ### Administrator-account
 
 ```bash
-node --env-file=<bestand met SUPABASE_URL, SUPABASE_SECRET_KEY, SITE_URL> scripts/create-admin.mjs   --email zuiderveenandrew@gmail.com --name Daniel
+node --env-file=<bestand met SUPABASE_URL, SUPABASE_SECRET_KEY, SITE_URL> scripts/create-admin.mjs --username daniel --name Daniel
 ```
 
 Print een eenmalige link (1 uur geldig) om het wachtwoord in te stellen. Voor een bestaand account

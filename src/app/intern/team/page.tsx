@@ -6,7 +6,13 @@ import { ROLE_LABELS } from "@/lib/auth/roles";
 import { requireRole } from "@/lib/auth/staff";
 import { listTeam, type TeamMember } from "@/lib/team/queries";
 import { InviteForm } from "./invite-form";
-import { ActiveToggle, LoginLinkForm, MfaResetForm, RoleForm } from "./member-actions";
+import {
+  ActiveToggle,
+  LoginLinkForm,
+  MfaResetForm,
+  RoleForm,
+  UsernameForm,
+} from "./member-actions";
 
 export const metadata: Metadata = { title: "Team" };
 
@@ -18,17 +24,17 @@ export default async function TeamPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Team"
-        description="Nodig medewerkers uit en beheer hun rol en toegang. Alleen zichtbaar voor administrators."
+        description="Voeg medewerkers toe en beheer hun gebruikersnaam, rol en toegang. Alleen zichtbaar voor administrators."
       />
 
       <Card>
         <CardHeader>
           <CardTitle>
-            <h2>Medewerker uitnodigen</h2>
+            <h2>Medewerker toevoegen</h2>
           </CardTitle>
           <CardDescription>
-            Je krijgt een persoonlijke link die je privé deelt. De medewerker stelt daarmee zelf een
-            wachtwoord in.
+            Kies naam, gebruikersnaam en rol. Je krijgt een activatielink en een aparte code; de
+            medewerker stelt daarmee zelf een wachtwoord in. Een e-mailadres is niet nodig.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -62,18 +68,28 @@ function MemberCard({ member, isSelf }: { member: TeamMember; isSelf: boolean })
           <StatusBadge member={member} />
           {member.hasMfa && <Badge variant="outline">2FA aan</Badge>}
         </CardTitle>
-        <CardDescription className="break-all">
-          {member.email ?? "Geen e-mailadres"}
-        </CardDescription>
+        <CardDescription className="break-all">Gebruikersnaam: {member.username}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {isSelf ? (
-          <p className="text-sm text-muted-foreground">
-            {ROLE_LABELS[member.role]}. Je kunt je eigen rol en toegang niet wijzigen; laat dit een
-            andere administrator doen.
-          </p>
+          <>
+            <UsernameForm
+              staffId={member.id}
+              username={member.username}
+              name={member.displayName}
+            />
+            <p className="text-sm text-muted-foreground">
+              {ROLE_LABELS[member.role]}. Je kunt je eigen rol en toegang niet wijzigen; laat dit
+              een andere administrator doen.
+            </p>
+          </>
         ) : (
           <>
+            <UsernameForm
+              staffId={member.id}
+              username={member.username}
+              name={member.displayName}
+            />
             <RoleForm staffId={member.id} role={member.role} name={member.displayName} />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               {member.isActive && <LoginLinkForm staffId={member.id} name={member.displayName} />}

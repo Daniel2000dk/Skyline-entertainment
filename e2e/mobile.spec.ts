@@ -21,7 +21,7 @@ test("public and login pages fit a phone screen", async ({ page }) => {
 
 test("staff can navigate with the mobile menu", async ({ page }) => {
   const staff = await createStaff("admin", "Mobiele Admin");
-  await login(page, staff.email, staff.password);
+  await login(page, staff.username, staff.password);
   await expect(page.getByRole("heading", { name: "Welkom, Mobiele Admin" })).toBeVisible();
   await expectNoHorizontalScroll(page);
 

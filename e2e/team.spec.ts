@@ -4,7 +4,7 @@ import {
   createStaff,
   login,
   loginAsStaff,
-  uniqueEmail,
+  uniqueUsername,
   assignRandomIp,
   formAlert,
   newClient,
@@ -14,7 +14,7 @@ test.beforeEach(async ({ context }) => {
   await assignRandomIp(context);
 });
 
-test("an admin invites a new Event Manager who sets a password via the link", async ({
+test("an admin adds an Event Manager by username who activates with link + code", async ({
   page,
   browser,
 }) => {
@@ -22,45 +22,50 @@ test("an admin invites a new Event Manager who sets a password via the link", as
   await loginAsStaff(page, adminUser);
   await page.goto("/intern/team");
 
-  const email = uniqueEmail("nieuw");
-  await page.getByLabel("E-mailadres").fill(email);
+  const username = uniqueUsername("noah");
   await page.getByLabel("Naam", { exact: true }).fill("Noah Nieuw");
+  await page.getByLabel("Gebruikersnaam", { exact: true }).fill(username.toUpperCase());
   await page.getByLabel("Rol", { exact: true }).selectOption("organizer");
-  await page.getByRole("button", { name: "Uitnodigen" }).click();
+  await page.getByRole("button", { name: "Toevoegen" }).click();
 
-  await expect(page.getByText("Noah Nieuw is uitgenodigd als medewerker.")).toBeVisible();
-  const link = await page.getByRole("textbox", { name: "Uitnodigingslink" }).inputValue();
-  expect(link).toMatch(/^http:\/\/localhost:3000\/bevestigen\?token_hash=[\w-]+&type=invite$/);
+  await expect(page.getByText("Noah Nieuw is toegevoegd.")).toBeVisible();
+  const link = await page.getByRole("textbox", { name: "Activatielink" }).inputValue();
+  const code = await page.getByRole("textbox", { name: "Activatiecode" }).inputValue();
+  expect(link).toMatch(/^http:\/\/localhost:3000\/activeren\?t=[\w-]{43}$/);
+  expect(code).toMatch(/^[A-Z2-9]{4}-[A-Z2-9]{4}$/);
+
+  // The same username cannot be given out twice.
+  await page.getByLabel("Naam", { exact: true }).fill("Noah Twee");
+  await page.getByLabel("Gebruikersnaam", { exact: true }).fill(username);
+  await page.getByRole("button", { name: "Toevoegen" }).click();
+  await expect(page.getByText("Deze gebruikersnaam is al in gebruik.")).toBeVisible();
 
   // The invitee uses a separate browser (no shared cookies).
   const inviteeContext = await newClient(browser);
   const invitee = await inviteeContext.newPage();
   await invitee.goto(link);
-  await expect(invitee.getByRole("heading", { name: "Welkom bij Skyline" })).toBeVisible();
-  await invitee.getByRole("button", { name: "Doorgaan" }).click();
-
-  await expect(invitee).toHaveURL(/\/wachtwoord-instellen$/);
+  await expect(invitee.getByRole("heading", { name: "Account activeren" })).toBeVisible();
+  await invitee.getByLabel("Activatiecode").fill(code.toLowerCase());
   await invitee.getByLabel("Nieuw wachtwoord").fill("kort");
   await invitee.getByLabel("Herhaal wachtwoord").fill("kort");
-  await invitee.getByRole("button", { name: "Wachtwoord opslaan" }).click();
+  await invitee.getByRole("button", { name: "Account activeren" }).click();
   await expect(invitee.getByText("Gebruik minimaal 12 tekens.")).toBeVisible();
+  await expect(invitee.getByLabel("Activatiecode")).toHaveValue(code.toLowerCase());
 
   const password = "Paleto-Bay-Rally-2026";
   await invitee.getByLabel("Nieuw wachtwoord").fill(password);
   await invitee.getByLabel("Herhaal wachtwoord").fill(password);
-  await invitee.getByRole("button", { name: "Wachtwoord opslaan" }).click();
+  await invitee.getByRole("button", { name: "Account activeren" }).click();
   await expect(invitee.getByRole("heading", { name: "Welkom, Noah Nieuw" })).toBeVisible();
   await expect(invitee.locator("aside").getByText("Event Manager", { exact: true })).toBeVisible();
-
-  // The link is single-use.
-  const replayContext = await newClient(browser);
-  const replay = await replayContext.newPage();
-  await replay.goto(link);
-  await replay.getByRole("button", { name: "Doorgaan" }).click();
-  await expect(formAlert(replay)).toContainText("ongeldig, al gebruikt of verlopen");
-
   await inviteeContext.close();
-  await replayContext.close();
+
+  // From now on: username + password.
+  const loginContext = await newClient(browser);
+  const loginPage = await loginContext.newPage();
+  await login(loginPage, username, password);
+  await expect(loginPage.getByRole("heading", { name: "Welkom, Noah Nieuw" })).toBeVisible();
+  await loginContext.close();
 });
 
 test("an admin changes a role and deactivates a member", async ({ page }) => {
@@ -70,8 +75,8 @@ test("an admin changes a role and deactivates a member", async ({ page }) => {
   await page.goto("/intern/team");
 
   const card = page.getByRole("listitem").filter({ hasText: member.name });
-  await card.getByLabel(`Rol van ${member.name}`).selectOption("organizer");
-  await card.getByRole("button", { name: "Opslaan" }).click();
+  await card.getByLabel(`Rol van ${member.name}`, { exact: true }).selectOption("organizer");
+  await card.getByRole("button", { name: `Rol van ${member.name} opslaan` }).click();
   await expect(card.getByText("Rol opgeslagen.")).toBeVisible();
 
   const { data: profile } = await admin
@@ -86,7 +91,7 @@ test("an admin changes a role and deactivates a member", async ({ page }) => {
   await expect(card.getByText("Gedeactiveerd", { exact: true })).toBeVisible();
 
   const memberPage = await page.context().browser()!.newPage();
-  await login(memberPage, member.email, member.password);
+  await login(memberPage, member.username, member.password);
   await expect(formAlert(memberPage)).toBeVisible();
   await expect(memberPage).toHaveURL(/\/login/);
   await memberPage.close();
@@ -103,24 +108,60 @@ test("an admin cannot change their own role or access", async ({ page }) => {
   await expect(ownCard.getByRole("combobox")).toHaveCount(0);
 });
 
-test("an admin can create a new login link for a member", async ({ page, browser }) => {
+test("an admin renames a member, who then logs in with the new username", async ({
+  page,
+  browser,
+}) => {
+  const adminUser = await createStaff("admin", "Rena Rename");
+  const member = await createStaff("team_member", `Joep ${Date.now()}`);
+  await loginAsStaff(page, adminUser);
+  await page.goto("/intern/team");
+
+  const renamed = uniqueUsername("joep");
+  const card = page.getByRole("listitem").filter({ hasText: member.name });
+  await card.getByLabel(`Gebruikersnaam van ${member.name}`, { exact: true }).fill(renamed);
+  await card.getByRole("button", { name: `Gebruikersnaam van ${member.name} opslaan` }).click();
+  await expect(card.getByText("Gebruikersnaam opgeslagen.")).toBeVisible();
+
+  const memberContext = await newClient(browser);
+  const memberPage = await memberContext.newPage();
+  await login(memberPage, member.username, member.password);
+  await expect(formAlert(memberPage)).toHaveText("Gebruikersnaam of wachtwoord klopt niet.");
+  await login(memberPage, renamed, member.password);
+  await expect(memberPage.getByRole("heading", { name: `Welkom, ${member.name}` })).toBeVisible();
+  await memberContext.close();
+});
+
+test("a new activation link resets a forgotten password", async ({ page, browser }) => {
   const adminUser = await createStaff("admin", "Lars Link");
   const member = await createStaff("team_member", `Kim ${Date.now()}`);
   await loginAsStaff(page, adminUser);
   await page.goto("/intern/team");
 
   const card = page.getByRole("listitem").filter({ hasText: member.name });
-  await card.getByRole("button", { name: `Nieuwe inloglink voor ${member.name}` }).click();
+  await card.getByRole("button", { name: `Nieuwe activatielink voor ${member.name}` }).click();
   const link = await card
-    .getByRole("textbox", { name: `Inloglink voor ${member.name}` })
+    .getByRole("textbox", { name: `Activatielink voor ${member.name}` })
     .inputValue();
-  expect(link).toContain("type=recovery");
+  const code = await card.getByRole("textbox", { name: "Activatiecode" }).inputValue();
 
   const memberContext = await newClient(browser);
   const memberPage = await memberContext.newPage();
   await memberPage.goto(link);
-  await expect(memberPage.getByRole("heading", { name: "Wachtwoord herstellen" })).toBeVisible();
-  await memberPage.getByRole("button", { name: "Doorgaan" }).click();
-  await expect(memberPage).toHaveURL(/\/wachtwoord-instellen$/);
+  const newPassword = "Nieuw-Wachtwoord-2026";
+  await memberPage.getByLabel("Activatiecode").fill(code);
+  await memberPage.getByLabel("Nieuw wachtwoord").fill(newPassword);
+  await memberPage.getByLabel("Herhaal wachtwoord").fill(newPassword);
+  await memberPage.getByRole("button", { name: "Account activeren" }).click();
+  await expect(memberPage.getByRole("heading", { name: `Welkom, ${member.name}` })).toBeVisible();
   await memberContext.close();
+
+  // Old password no longer works, the new one does.
+  const loginContext = await newClient(browser);
+  const loginPage = await loginContext.newPage();
+  await login(loginPage, member.username, member.password);
+  await expect(formAlert(loginPage)).toHaveText("Gebruikersnaam of wachtwoord klopt niet.");
+  await login(loginPage, member.username, newPassword);
+  await expect(loginPage.getByRole("heading", { name: `Welkom, ${member.name}` })).toBeVisible();
+  await loginContext.close();
 });

@@ -15,10 +15,12 @@ export const admin = createClient(required("SUPABASE_URL"), required("SUPABASE_S
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-export const MAILPIT_URL = process.env.MAILPIT_URL ?? "http://127.0.0.1:54324";
-
 export function uniqueEmail(prefix: string): string {
   return `${prefix}-${Date.now()}-${randomUUID().slice(0, 8)}@skyline.test`;
+}
+
+export function uniqueUsername(prefix: string): string {
+  return `${prefix.toLowerCase().replace(/[^a-z0-9]/g, "")}-${randomUUID().slice(0, 12)}`;
 }
 
 export function strongPassword(): string {
@@ -39,15 +41,22 @@ export async function newClient(browser: Browser): Promise<BrowserContext> {
   return context;
 }
 
-export type TestUser = { id: string; email: string; password: string; name: string };
+export type TestUser = {
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+  name: string;
+};
 
 /** Creates staff the same way production does: invitation first, then Auth user. */
 export async function createStaff(role: StaffRole, name = `Test ${role}`): Promise<TestUser> {
   const email = uniqueEmail(role);
+  const username = uniqueUsername(role);
   const password = strongPassword();
   const { error: inviteError } = await admin
     .from("staff_invitations")
-    .insert({ email, display_name: name, role });
+    .insert({ email, username, display_name: name, role });
   if (inviteError) throw inviteError;
 
   const { data, error } = await admin.auth.admin.createUser({
@@ -56,7 +65,7 @@ export async function createStaff(role: StaffRole, name = `Test ${role}`): Promi
     email_confirm: true,
   });
   if (error || !data.user) throw error ?? new Error("createUser failed");
-  return { id: data.user.id, email, password, name };
+  return { id: data.user.id, username, email, password, name };
 }
 
 /** An Auth account that was never invited (must get no access at all). */
@@ -69,7 +78,7 @@ export async function createNonStaffUser(): Promise<TestUser> {
     email_confirm: true,
   });
   if (error || !data.user) throw error ?? new Error("createUser failed");
-  return { id: data.user.id, email, password, name: "Outsider" };
+  return { id: data.user.id, username: "", email, password, name: "Outsider" };
 }
 
 /** The form message (excludes Next.js' route announcer, which also has role=alert). */
@@ -77,42 +86,19 @@ export function formAlert(page: Page) {
   return page.locator('[data-slot="alert"]');
 }
 
-export async function login(page: Page, email: string, password: string) {
+export async function login(page: Page, username: string, password: string) {
   // Every test login looks like a different client, so the per-IP limiter
   // (which also counts the previous window) never mixes up parallel tests.
   await assignRandomIp(page.context());
   await page.goto("/login");
-  await page.getByLabel("E-mailadres").fill(email);
+  await page.getByLabel("Gebruikersnaam").fill(username);
   await page.getByLabel("Wachtwoord").fill(password);
   await page.getByRole("button", { name: "Inloggen" }).click();
 }
 
 export async function loginAsStaff(page: Page, user: TestUser) {
-  await login(page, user.email, user.password);
+  await login(page, user.username, user.password);
   await expect(page.getByRole("heading", { name: `Welkom, ${user.name}` })).toBeVisible();
-}
-
-/** Latest password-reset link sent to `email`, read from the local Mailpit inbox. */
-export async function latestResetLink(email: string): Promise<string> {
-  let link: string | undefined;
-  await expect
-    .poll(
-      async () => {
-        const search = await fetch(
-          `${MAILPIT_URL}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`,
-        ).then((response) => response.json());
-        const id = search.messages?.[0]?.ID;
-        if (!id) return undefined;
-        const message = await fetch(`${MAILPIT_URL}/api/v1/message/${id}`).then((response) =>
-          response.json(),
-        );
-        link = /href="([^"]*\/bevestigen\?[^"]*)"/.exec(message.HTML ?? "")?.[1];
-        return link;
-      },
-      { timeout: 15_000 },
-    )
-    .toBeTruthy();
-  return link!.replaceAll("&amp;", "&");
 }
 
 // --- MFA (TOTP, RFC 6238: SHA-1, 30 s, 6 digits) — what an authenticator app computes.

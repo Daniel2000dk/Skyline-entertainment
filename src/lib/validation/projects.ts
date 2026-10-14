@@ -103,6 +103,7 @@ export const taskSchema = z.object({
   assigneeId: optionalUuid,
   dueAt: optionalDateTime,
   priority: z.enum(TASK_PRIORITIES, { error: "Kies een geldige prioriteit." }),
+  status: z.enum(TASK_STATUSES, { error: "Kies een geldige status." }),
 });
 
 export const taskStatusSchema = z.enum(TASK_STATUSES, { error: "Kies een geldige status." });

@@ -1,18 +1,24 @@
 "use server";
 
-import { revalidateInternal } from "@/lib/revalidate";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { generateAuthLink } from "@/lib/auth/links";
+import { createActivation } from "@/lib/auth/activation";
+import { revalidateInternal } from "@/lib/revalidate";
 import { requireRole } from "@/lib/auth/staff";
 import { formValue, type FormState } from "@/lib/forms";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { fieldErrors, inviteSchema, roleSchema } from "@/lib/validation/auth";
+import { fieldErrors, inviteSchema, roleSchema, usernameSchema } from "@/lib/validation/auth";
 
-export type LinkFormState = FormState & { link?: string };
+export type LinkFormState = FormState & { link?: string; code?: string; username?: string };
 
 const staffIdSchema = z.uuid();
 
+/**
+ * Creates a staff account with a username chosen by the admin. The Auth
+ * account gets an undeliverable internal email address (".invalid" never
+ * resolves); the member activates it with a link + separate code.
+ */
 export async function inviteStaff(
   _prev: LinkFormState,
   formData: FormData,
@@ -20,62 +26,75 @@ export async function inviteStaff(
   await requireRole(["admin"]);
 
   const values = {
-    email: formValue(formData, "email"),
+    username: formValue(formData, "username"),
     displayName: formValue(formData, "displayName"),
     role: formValue(formData, "role"),
   };
   const parsed = inviteSchema.safeParse(values);
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error), values };
+  const usernameTaken: LinkFormState = {
+    status: "error",
+    fieldErrors: { username: "Deze gebruikersnaam is al in gebruik." },
+    values,
+  };
+
+  const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("staff_profiles")
+    .select("id")
+    .eq("username", parsed.data.username)
+    .maybeSingle();
+  if (existing) return usernameTaken;
 
   // Insert as the admin (RLS + audit), then create the Auth user; the
   // database trigger turns the matching invitation into a staff profile.
-  const supabase = await createClient();
+  const email = `${randomUUID()}@users.skyline.invalid`;
   const { data: invitation, error } = await supabase
     .from("staff_invitations")
     .insert({
-      email: parsed.data.email,
+      email,
+      username: parsed.data.username,
       display_name: parsed.data.displayName,
       role: parsed.data.role,
     })
     .select("id")
     .single();
-
   if (error || !invitation) {
-    return {
-      status: "error",
-      message:
-        error?.code === "23505"
-          ? "Voor dit e-mailadres staat al een uitnodiging open."
-          : "Uitnodigen is mislukt. Probeer het opnieuw.",
-      values,
-    };
+    return error?.code === "23505"
+      ? usernameTaken
+      : { status: "error", message: "Toevoegen is mislukt. Probeer het opnieuw.", values };
   }
 
-  const link = await generateAuthLink("invite", parsed.data.email);
-  if (!link.ok) {
+  const { data: created } = await createAdminClient().auth.admin.createUser({
+    email,
+    email_confirm: true,
+  });
+  if (!created?.user) {
     await supabase
       .from("staff_invitations")
       .update({ revoked_at: new Date().toISOString() })
       .eq("id", invitation.id);
-    return {
-      status: "error",
-      message:
-        link.reason === "exists"
-          ? "Er bestaat al een account met dit e-mailadres. Heractiveer de medewerker of maak een nieuwe inloglink."
-          : "Uitnodigen is mislukt. Probeer het opnieuw.",
-      values,
-    };
+    return { status: "error", message: "Toevoegen is mislukt. Probeer het opnieuw.", values };
   }
 
   revalidateInternal();
+  const activation = await createActivation(created.user.id);
+  if (!activation) {
+    return {
+      status: "error",
+      message: `${parsed.data.displayName} is toegevoegd, maar de activatielink kon niet worden gemaakt. Gebruik "Nieuwe activatielink" bij de medewerker.`,
+    };
+  }
   return {
     status: "success",
-    message: `${parsed.data.displayName} is uitgenodigd als medewerker.`,
-    link: link.url,
+    message: `${parsed.data.displayName} is toegevoegd.`,
+    username: parsed.data.username,
+    link: activation.url,
+    code: activation.code,
   };
 }
 
-/** New one-time link to (re)set the password, e.g. when an invite expired. */
+/** New activation link + code, e.g. for a forgotten password or an expired link. */
 export async function createLoginLink(
   _prev: LinkFormState,
   formData: FormData,
@@ -87,21 +106,44 @@ export async function createLoginLink(
     return { status: "error", message: "Je eigen wachtwoord wijzig je via Account." };
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin.auth.admin.getUserById(staffId.data);
-  const email = data.user?.email;
-  if (error || !email) return { status: "error", message: "Onbekende medewerker." };
+  // The database re-checks admin rights, logs it and voids older links.
+  const activation = await createActivation(staffId.data);
+  if (!activation)
+    return { status: "error", message: "Link maken is mislukt. Probeer het opnieuw." };
+  return { status: "success", link: activation.url, code: activation.code };
+}
 
-  const link = await generateAuthLink("recovery", email);
-  if (!link.ok) return { status: "error", message: "Link maken is mislukt. Probeer het opnieuw." };
+export async function updateStaffUsername(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireRole(["admin"]);
+  const staffId = staffIdSchema.safeParse(formValue(formData, "staffId"));
+  const username = usernameSchema.safeParse(formValue(formData, "username"));
+  if (!staffId.success) return { status: "error", message: "Onbekende medewerker." };
+  if (!username.success) {
+    return { status: "error", message: username.error.issues[0]?.message ?? "Ongeldige invoer." };
+  }
 
-  // A login link lets its holder set a new password: always audited.
   const supabase = await createClient();
-  await supabase.rpc("log_security_event", {
-    target_staff_id: staffId.data,
-    security_event: "login_link.created",
-  });
-  return { status: "success", link: link.url };
+  const { data, error } = await supabase
+    .from("staff_profiles")
+    .update({ username: username.data })
+    .eq("id", staffId.data)
+    .select("id");
+  if (error) {
+    return {
+      status: "error",
+      message:
+        error.code === "23505"
+          ? "Deze gebruikersnaam is al in gebruik."
+          : "Opslaan is mislukt. Probeer het opnieuw.",
+    };
+  }
+  if (!data?.length) return { status: "error", message: "Onbekende medewerker." };
+
+  revalidateInternal();
+  return { status: "success", message: "Gebruikersnaam opgeslagen." };
 }
 
 export async function updateStaffRole(_prev: FormState, formData: FormData): Promise<FormState> {

@@ -24,14 +24,15 @@ export function LoginForm() {
         </Alert>
       )}
       <FormField
-        id="email"
-        label="E-mailadres"
-        type="email"
+        id="username"
+        label="Gebruikersnaam"
         autoComplete="username"
-        inputMode="email"
+        autoCapitalize="none"
+        spellCheck={false}
         required
-        defaultValue={state.values?.email}
-        error={state.fieldErrors?.email}
+        maxLength={30}
+        defaultValue={state.values?.username}
+        error={state.fieldErrors?.username}
       />
       <FormField
         id="password"

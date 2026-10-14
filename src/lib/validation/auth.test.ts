@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  confirmSchema,
+  activationSchema,
   fieldErrors,
   inviteSchema,
   loginSchema,
@@ -9,16 +9,16 @@ import {
 } from "./auth";
 
 describe("loginSchema", () => {
-  it("normalizes the email address", () => {
-    const result = loginSchema.parse({ email: "  Admin@Skyline.TEST ", password: "x" });
-    expect(result.email).toBe("admin@skyline.test");
+  it("normalizes the username", () => {
+    const result = loginSchema.parse({ username: "  Daniel ", password: "x" });
+    expect(result.username).toBe("daniel");
   });
 
-  it("rejects an invalid email with a Dutch message", () => {
-    const result = loginSchema.safeParse({ email: "geen-email", password: "x" });
+  it("asks for a username with a Dutch message", () => {
+    const result = loginSchema.safeParse({ username: " ", password: "x" });
     expect(result.success).toBe(false);
     if (!result.success)
-      expect(fieldErrors(result.error).email).toBe("Vul een geldig e-mailadres in.");
+      expect(fieldErrors(result.error).username).toBe("Vul je gebruikersnaam in.");
   });
 
   it("rejects missing fields", () => {
@@ -56,43 +56,57 @@ describe("setPasswordSchema", () => {
 describe("inviteSchema", () => {
   it("accepts a valid invitation", () => {
     const result = inviteSchema.parse({
-      email: "Nieuw@Skyline.test",
+      username: " Sam.Racer ",
       displayName: "  Sam  ",
       role: "organizer",
     });
-    expect(result).toEqual({ email: "nieuw@skyline.test", displayName: "Sam", role: "organizer" });
+    expect(result).toEqual({ username: "sam.racer", displayName: "Sam", role: "organizer" });
   });
+
+  it.each(["ab", ".start", "met spatie", "x".repeat(31), "naam@mail"])(
+    "rejects the username %j",
+    (username) => {
+      expect(inviteSchema.safeParse({ username, displayName: "A", role: "admin" }).success).toBe(
+        false,
+      );
+    },
+  );
 
   it("rejects unknown roles (no privilege smuggling)", () => {
     expect(
-      inviteSchema.safeParse({ email: "a@b.test", displayName: "A", role: "superadmin" }).success,
+      inviteSchema.safeParse({ username: "abc", displayName: "A", role: "superadmin" }).success,
     ).toBe(false);
   });
 
   it("rejects overlong display names", () => {
     expect(
-      inviteSchema.safeParse({ email: "a@b.test", displayName: "x".repeat(61), role: "admin" })
+      inviteSchema.safeParse({ username: "abc", displayName: "x".repeat(61), role: "admin" })
         .success,
     ).toBe(false);
   });
 });
 
-describe("confirmSchema", () => {
-  it("accepts invite and recovery tokens", () => {
-    expect(confirmSchema.safeParse({ tokenHash: "abcDEF123_-xyz", type: "invite" }).success).toBe(
-      true,
-    );
-    expect(confirmSchema.safeParse({ tokenHash: "abcDEF123_-xyz", type: "recovery" }).success).toBe(
-      true,
-    );
+describe("activationSchema", () => {
+  const token = "a".repeat(43);
+  const valid = {
+    token,
+    code: "abcd-efgh",
+    password: "rally-paleto-2026",
+    confirm: "rally-paleto-2026",
+  };
+
+  it("normalizes the code (case, dash, spaces)", () => {
+    expect(activationSchema.parse({ ...valid, code: " abcd efgh " }).code).toBe("ABCDEFGH");
+    expect(activationSchema.parse(valid).code).toBe("ABCDEFGH");
   });
 
   it.each([
-    ["signup", { tokenHash: "abcDEF123_-xyz", type: "signup" }],
-    ["magiclink", { tokenHash: "abcDEF123_-xyz", type: "magiclink" }],
-    ["markup in token", { tokenHash: "<script>alert(1)</script>", type: "invite" }],
-    ["short token", { tokenHash: "abc", type: "invite" }],
+    ["a short token", { ...valid, token: "abc" }],
+    ["a token with other characters", { ...valid, token: `${"a".repeat(42)}/` }],
+    ["a short code", { ...valid, code: "ABC" }],
+    ["a weak password", { ...valid, password: "kort", confirm: "kort" }],
+    ["a different confirmation", { ...valid, confirm: "anders-2026x" }],
   ])("rejects %s", (_label, value) => {
-    expect(confirmSchema.safeParse(value).success).toBe(false);
+    expect(activationSchema.safeParse(value).success).toBe(false);
   });
 });

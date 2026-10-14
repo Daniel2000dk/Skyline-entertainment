@@ -7,11 +7,13 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { SubmitButton } from "@/components/ui/submit-button";
 import { ROLE_LABELS, STAFF_ROLES, type StaffRole } from "@/lib/auth/roles";
 import { idleFormState, type FormState } from "@/lib/forms";
+import { Input } from "@/components/ui/input";
 import {
   createLoginLink,
   resetStaffMfa,
   setStaffActive,
   updateStaffRole,
+  updateStaffUsername,
   type LinkFormState,
 } from "./actions";
 import { LinkResult } from "./link-result";
@@ -46,7 +48,40 @@ export function RoleForm({
             </NativeSelectOption>
           ))}
         </NativeSelect>
-        <SubmitButton variant="outline">Opslaan</SubmitButton>
+        <SubmitButton variant="outline" aria-label={`Rol van ${name} opslaan`}>
+          Opslaan
+        </SubmitButton>
+      </div>
+      <Feedback state={state} />
+    </form>
+  );
+}
+
+export function UsernameForm({
+  staffId,
+  username,
+  name,
+}: {
+  staffId: string;
+  username: string;
+  name: string;
+}) {
+  const [state, action] = useActionState(updateStaffUsername, idleFormState);
+  return (
+    <form action={action} className="flex flex-col gap-2">
+      <input type="hidden" name="staffId" value={staffId} />
+      <div className="flex gap-2">
+        <Input
+          name="username"
+          defaultValue={username}
+          maxLength={30}
+          autoCapitalize="none"
+          spellCheck={false}
+          aria-label={`Gebruikersnaam van ${name}`}
+        />
+        <SubmitButton variant="outline" aria-label={`Gebruikersnaam van ${name} opslaan`}>
+          Opslaan
+        </SubmitButton>
       </div>
       <Feedback state={state} />
     </form>
@@ -58,10 +93,12 @@ export function LoginLinkForm({ staffId, name }: { staffId: string; name: string
   return (
     <form action={action} className="flex flex-col gap-2">
       <input type="hidden" name="staffId" value={staffId} />
-      <SubmitButton variant="outline" aria-label={`Nieuwe inloglink voor ${name}`}>
-        Nieuwe inloglink
+      <SubmitButton variant="outline" aria-label={`Nieuwe activatielink voor ${name}`}>
+        Nieuwe activatielink
       </SubmitButton>
-      {state.link && <LinkResult link={state.link} label={`Inloglink voor ${name}`} />}
+      {state.link && state.code && (
+        <LinkResult link={state.link} code={state.code} label={`Activatielink voor ${name}`} />
+      )}
       {state.status === "error" && <Feedback state={state} />}
     </form>
   );

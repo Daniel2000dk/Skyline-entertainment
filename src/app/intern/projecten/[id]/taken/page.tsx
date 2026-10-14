@@ -24,20 +24,23 @@ export default async function ProjectTasksPage({
 
   return (
     <div className="flex flex-col gap-6">
+      {canEdit && (
+        <details id="taak-toevoegen" open className="group rounded-lg border border-dashed p-4">
+          <summary className="cursor-pointer font-medium">Taak toevoegen</summary>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Wijs de taak toe aan een medewerker; met een deadline staat hij ook in de planning.
+          </p>
+          <div className="mt-4">
+            <TaskForm projectId={project.id} staff={activeStaff} />
+          </div>
+        </details>
+      )}
       <TaskBoard
         tasks={tasks}
         editableProjects={editable}
         currentStaffId={staff.id}
         showProject={false}
       />
-      {canEdit && (
-        <section aria-labelledby="task-add" className="rounded-lg border border-dashed p-4">
-          <h2 id="task-add" className="mb-3 font-medium">
-            Taak toevoegen
-          </h2>
-          <TaskForm projectId={project.id} staff={activeStaff} />
-        </section>
-      )}
     </div>
   );
 }

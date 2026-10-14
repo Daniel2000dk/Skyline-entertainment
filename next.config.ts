@@ -68,7 +68,7 @@ const nextConfig: NextConfig = {
       { source: "/wachtwoord-:slug", headers: privateHeaders },
       {
         // One-time tokens live in this URL: never leak it via Referer.
-        source: "/bevestigen",
+        source: "/activeren",
         headers: [...privateHeaders, { key: "Referrer-Policy", value: "no-referrer" }],
       },
     ];

@@ -17,7 +17,8 @@ const db = createClient(required("SUPABASE_URL"), required("SUPABASE_SECRET_KEY"
 
 const runId = randomUUID().slice(0, 8);
 const name = `Livetest ${runId}`;
-const email = `livetest-${runId}@skyline.test`;
+const email = `livetest-${runId}@users.skyline.invalid`;
+const username = `livetest-${runId}`.toLowerCase().slice(0, 30);
 const password = `Live-${randomUUID()}-9`;
 const title = `Livetest race ${runId}`;
 const seeded = { ideaId: "", ideaTitle: `Livetest omzetten ${runId}` };
@@ -56,7 +57,7 @@ function formAlert(page: Page) {
 test.beforeAll(async () => {
   const { error: inviteError } = await db
     .from("staff_invitations")
-    .insert({ email, display_name: name, role: "admin" });
+    .insert({ email, username, display_name: name, role: "admin" });
   if (inviteError) throw inviteError;
   const { data, error } = await db.auth.admin.createUser({ email, password, email_confirm: true });
   if (error || !data.user) throw error ?? new Error("createUser failed");
@@ -128,7 +129,7 @@ test("every module works on the live site", async ({ page, browser }) => {
 
   await test.step("login (wrong password refused, then in)", async () => {
     await page.goto("/login");
-    await page.getByLabel("E-mailadres").fill(email);
+    await page.getByLabel("Gebruikersnaam").fill(username);
     await page.getByLabel("Wachtwoord").fill(`${password}x`);
     await page.getByRole("button", { name: "Inloggen" }).click();
     await expect(formAlert(page)).toBeVisible();

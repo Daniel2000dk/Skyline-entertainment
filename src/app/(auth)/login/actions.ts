@@ -4,42 +4,59 @@ import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/redirect";
 import { formValue, type FormState } from "@/lib/forms";
 import { clientIp, consumeRateLimits } from "@/lib/security/rate-limit";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { fieldErrors, loginSchema } from "@/lib/validation/auth";
 
 const FIFTEEN_MINUTES = 15 * 60;
+const WRONG = "Gebruikersnaam of wachtwoord klopt niet.";
 
 export async function login(_prev: FormState, formData: FormData): Promise<FormState> {
-  const email = formValue(formData, "email");
-  const parsed = loginSchema.safeParse({ email, password: formValue(formData, "password") });
+  const username = formValue(formData, "username");
+  const parsed = loginSchema.safeParse({ username, password: formValue(formData, "password") });
   if (!parsed.success) {
-    return { status: "error", fieldErrors: fieldErrors(parsed.error), values: { email } };
+    return { status: "error", fieldErrors: fieldErrors(parsed.error), values: { username } };
   }
 
   // Per-IP is generous (shared networks); per-account stops slow brute force.
   const allowed = await consumeRateLimits([
     { scope: "login:ip", value: await clientIp(), max: 30, windowSeconds: FIFTEEN_MINUTES },
-    { scope: "login:account", value: parsed.data.email, max: 10, windowSeconds: FIFTEEN_MINUTES },
+    {
+      scope: "login:account",
+      value: parsed.data.username,
+      max: 10,
+      windowSeconds: FIFTEEN_MINUTES,
+    },
   ]);
   if (!allowed) {
     return {
       status: "error",
       message: "Te veel inlogpogingen. Probeer het over een kwartier opnieuw.",
-      values: { email },
+      values: { username },
     };
   }
 
+  // The Auth account behind a username has an internal email address that
+  // staff never see; only the server (secret key) can look it up.
+  const { data: email } = await createAdminClient().rpc("staff_login_email", {
+    p_username: parsed.data.username,
+  });
+  // Same message for unknown username and wrong password (no account enumeration).
+  if (!email) return { status: "error", message: WRONG, values: { username } };
+
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password: parsed.data.password,
+  });
   if (error || !data.user) {
-    // Same message for unknown email and wrong password (no account enumeration).
     return {
       status: "error",
       message:
         error?.status === 429
           ? "Te veel inlogpogingen. Probeer het over een kwartier opnieuw."
-          : "E-mailadres of wachtwoord klopt niet.",
-      values: { email },
+          : WRONG,
+      values: { username },
     };
   }
 
@@ -64,7 +81,7 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
     return {
       status: "error",
       message: "Dit account heeft geen toegang tot het interne systeem.",
-      values: { email },
+      values: { username },
     };
   }
 
