@@ -73,7 +73,7 @@ Build Skyline Entertainment: a secure, fast, easy-to-use GTA RP event management
 ## UX principles
 - Minimal steps and no clutter; mobile-first public, responsive internal. Feels like a simple management tool, not complex business software.
 - Dutch interface by default. Clear friendly error states; keyboard access; proper contrast; loading/empty states; confirmations for irreversible actions; autosave only where reliable.
-- Visually polished dark entertainment brand (near-black background, charcoal panels, white type, restrained gold accents); no busy animations; no fake data in production.
+- Official brand kit (see `docs/decisions.md` D28): black #0A0A0A, anthracite #1A1A1A panels, dark grey #2C2C2C, gold #D4AF37 only for primary actions, active navigation, focus and small highlights, white type; Montserrat headings, Inter UI text; SE mark + wordmark via `src/components/brand/logo.tsx`. Public pages lively (key visual, brand pillars); internal pages calm and functional (no large photos). No busy animations; no fake data in production.
 - Keep navigation lean: Dashboard, Planning, Projecten, Taken, Ideeën, CRM, Financiën, Team. Only show modules that exist.
 - For public: Events, Event detail, Registration. Never surface internal navigation or links to private files.
 

@@ -42,9 +42,9 @@ export function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?:
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
+                "relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
                 active
-                  ? "bg-sidebar-accent text-foreground"
+                  ? "bg-sidebar-accent text-foreground before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-primary"
                   : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
               )}
             >

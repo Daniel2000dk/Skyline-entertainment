@@ -126,3 +126,14 @@ eigen templates en verstuurt alleen naar leden van de Supabase-organisatie. Onli
 wachtwoordherstel en uitnodigingen daarom via eenmalige links die een Administrator maakt (geen
 e-mail nodig). Het template gaat pas online mee als er gratis SMTP met afzender
 zuiderveenandrew@gmail.com is.
+
+**D28. Officiële huisstijl.** De brandkit van de eigenaar (lokaal in `Skyline-Entertainment-Brandkit/`,
+door git genegeerd) is leidend; alleen de gebruikte bestanden staan in de app: favicon, app-icoon,
+apple-icon, het sfeerbeeld (homepage en linkvoorbeeld voor bijv. Discord) en het SE-teken als
+vector. Het woordmerk is echte tekst in Montserrat (via `next/font`, zelf gehost, gratis) in plaats
+van SVG-tekst, die als afbeelding geen webfonts kan laden. Het sfeerbeeld bevat al logo en
+slogan, dus er komt geen tweede logo overheen. Afwijking van de kit, voor leesbaarheid: kleine
+secundaire tekst is #A8A8A8 (7,3:1 op kaarten) in plaats van #E5E5E5, dat te dicht bij wit ligt
+om hiërarchie te tonen; #E5E5E5 blijft voor langere publieke tekst. Invoerranden #6B6B6B halen
+3:1. De grafiekkleur blijft #B38B35 (gevalideerd); #D4AF37 valt buiten de lichtheidsband voor
+grafieken op donker.

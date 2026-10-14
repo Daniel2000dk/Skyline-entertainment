@@ -11,7 +11,7 @@ export function InternalShell({ staff, children }: { staff: CurrentStaff; childr
   return (
     <div className="flex min-h-dvh flex-1">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-8 border-r border-sidebar-border bg-sidebar p-4 lg:flex">
-        <Logo href="/intern" />
+        <Logo href="/intern" className="px-1 pt-1" />
         <nav aria-label="Hoofdmenu" className="flex-1">
           <NavLinks items={items} />
         </nav>

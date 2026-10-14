@@ -67,6 +67,13 @@ _Laatst bijgewerkt: 2026-10-14 — fase A en B live in productie_
 - Livetest geslaagd (zie hieronder); het tijdelijke testaccount en al zijn gegevens zijn verwijderd.
 - Previews hebben bewust geen backend (zie beslissing D25).
 
+## Huisstijl (2026-10-14, nog niet in productie)
+
+- Officiële brandkit doorgevoerd: zwart/goud-kleuren, Montserrat + Inter, SE-logo (vector + echte
+  tekst), favicon/app-iconen, linkvoorbeeld (Open Graph). Publieke homepage met sfeerbeeld en
+  merkpijlers; login met groot logo; intern rustig met goud alleen voor knoppen, actieve navigatie
+  en focus. Gecontroleerd met screenshots op desktop (1440 px) en mobiel (Pixel 7).
+
 ## In uitvoering
 
 - Fase C: GTA-kaart en route-editor. De kaartafbeelding van de eigenaar staat lokaal in
